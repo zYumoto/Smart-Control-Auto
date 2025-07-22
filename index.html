@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela de Login</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-card">
+            <h1>Login</h1>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" placeholder="Seu e-mail" autocomplete="email">
+                    <span class="error-message" id="email-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" placeholder="Sua senha" autocomplete="current-password">
+                    <span class="error-message" id="password-error"></span>
+                </div>
+                <button type="submit" id="login-button" disabled>Entrar</button>
+                
+                <div class="additional-links">
+                    <a href="#" id="forgot-password-link" class="forgot-password">Esqueceu a senha?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Recuperação de Senha - Etapa 1: Solicitar Email -->
+    <div class="modal" id="forgot-password-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Recuperação de Senha</h2>
+            <p>Digite seu e-mail para receber um código de verificação.</p>
+            <div class="form-group">
+                <label for="recovery-email">E-mail</label>
+                <input type="email" id="recovery-email" placeholder="Seu e-mail cadastrado">
+                <span class="error-message" id="recovery-email-error"></span>
+            </div>
+            <div class="modal-actions">
+                <button id="send-code-btn" class="primary-button">Enviar Código</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Recuperação de Senha - Etapa 2: Verificar Código -->
+    <div class="modal" id="verification-code-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Verificação de Código</h2>
+            <p>Digite o código de verificação enviado para seu e-mail.</p>
+            <div class="form-group">
+                <label for="verification-code">Código de Verificação</label>
+                <input type="text" id="verification-code" placeholder="Digite o código de 6 dígitos">
+                <span class="error-message" id="verification-code-error"></span>
+            </div>
+            <div class="modal-actions">
+                <button id="verify-code-btn" class="primary-button">Verificar Código</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Recuperação de Senha - Etapa 3: Nova Senha -->
+    <div class="modal" id="new-password-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Definir Nova Senha</h2>
+            <p>Digite e confirme sua nova senha.</p>
+            <div class="form-group">
+                <label for="new-password">Nova Senha</label>
+                <input type="password" id="new-password" placeholder="Digite sua nova senha">
+                <span class="error-message" id="new-password-error"></span>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirmar Senha</label>
+                <input type="password" id="confirm-password" placeholder="Confirme sua nova senha">
+                <span class="error-message" id="confirm-password-error"></span>
+            </div>
+            <div class="modal-actions">
+                <button id="save-password-btn" class="primary-button">Salvar Nova Senha</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

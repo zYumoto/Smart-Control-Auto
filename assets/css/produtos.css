@@ -1,0 +1,205 @@
+/* Estilos específicos para a página de produtos */
+
+/* Layout de produtos */
+.products-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.product-item {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.product-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--primary-dark);
+    margin: 0;
+}
+
+.product-category {
+    font-size: 0.8rem;
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+    padding: 3px 8px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.product-price {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--income-color);
+    margin: 10px 0;
+}
+
+.product-cost {
+    font-size: 0.9rem;
+    color: var(--expense-color);
+    margin-bottom: 10px;
+}
+
+.product-description {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+.product-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: auto;
+}
+
+.btn-edit, .btn-delete, .btn-sell {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-edit {
+    color: var(--primary-color);
+}
+
+.btn-delete {
+    color: var(--expense-color);
+}
+
+.btn-sell {
+    color: var(--income-color);
+    font-weight: 500;
+}
+
+.btn-edit:hover, .btn-delete:hover, .btn-sell:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Modal para registrar venda */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 80%;
+    max-width: 500px;
+    position: relative;
+    animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+    from {opacity: 0; transform: translateY(-50px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.close-modal {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.close-modal:hover {
+    color: var(--text-color);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .products-list {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    
+    .modal-content {
+        width: 90%;
+        margin: 20% auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .products-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-group {
+        width: 100%;
+    }
+}
+
+/* Estilos para a busca */
+.search-group {
+    flex: 1;
+    max-width: 300px;
+}
+
+.search-group input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Estilos para categorias específicas */
+.category-produto-fisico {
+    background-color: rgba(46, 125, 50, 0.1);
+    color: #2e7d32;
+}
+
+.category-servico {
+    background-color: rgba(33, 150, 243, 0.1);
+    color: #2196f3;
+}
+
+.category-assinatura {
+    background-color: rgba(156, 39, 176, 0.1);
+    color: #9c27b0;
+}
+
+.category-outro {
+    background-color: rgba(158, 158, 158, 0.1);
+    color: #757575;
+}

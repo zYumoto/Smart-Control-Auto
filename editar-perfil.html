@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil</title>
+    <link rel="stylesheet" href="assets/css/editar-perfil.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header-simple">
+            <h1>Editar Perfil</h1>
+            <div class="auth-buttons">
+                <a href="menu.html" class="auth-button"><i class="fas fa-th-large"></i> Menu</a>
+                <div class="profile-dropdown">
+                    <button class="profile-button" id="profile-btn">
+                        <div class="profile-photo">
+                            <img src="assets/img/default-avatar.svg" alt="Perfil" id="profile-image">
+                        </div>
+                        <span id="user-name">Meu Perfil</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-content" id="profile-dropdown-content">
+                        <a href="meu-perfil.html"><i class="fas fa-user"></i> Ver Perfil</a>
+                        <a href="editar-perfil.html"><i class="fas fa-edit"></i> Editar Perfil</a>
+                        <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="profile-edit-container">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <img src="assets/img/default-avatar.svg" alt="Foto de Perfil" id="user-avatar">
+                        <button class="change-photo-btn" id="change-photo-btn">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <div class="profile-info-header">
+                        <h2 id="profile-fullname">Nome do Usuário</h2>
+                        <p id="profile-role">Cargo</p>
+                    </div>
+                </div>
+
+                <form id="edit-profile-form">
+                    <!-- Seção 1: Informações Pessoais -->
+                    <section class="form-section">
+                        <h3><i class="fas fa-user"></i> Informações Pessoais</h3>
+                        <div class="form-group">
+                            <label for="fullname">Nome Completo*</label>
+                            <input type="text" id="fullname" name="fullname" placeholder="Digite o nome completo" required>
+                            <span class="error-message" id="fullname-error"></span>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="birthdate">Data de Nascimento*</label>
+                                <input type="date" id="birthdate" name="birthdate" required>
+                                <span class="error-message" id="birthdate-error"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cpf">CPF*</label>
+                                <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
+                                <span class="error-message" id="cpf-error"></span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Seção 2: Contato -->
+                    <section class="form-section">
+                        <h3><i class="fas fa-address-book"></i> Contato</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">E-mail*</label>
+                                <input type="email" id="email" name="email" placeholder="exemplo@email.com" required readonly>
+                                <small class="info-text">O e-mail não pode ser alterado pois é usado para login.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Telefone Celular*</label>
+                                <input type="tel" id="phone" name="phone" placeholder="(00) 00000-0000" required>
+                                <span class="error-message" id="phone-error"></span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Seção 3: Endereço -->
+                    <section class="form-section">
+                        <h3><i class="fas fa-map-marker-alt"></i> Endereço</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cep">CEP*</label>
+                                <div class="input-with-button">
+                                    <input type="text" id="cep" name="cep" placeholder="00000-000" required>
+                                    <button type="button" id="search-cep" class="secondary-button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                <span class="error-message" id="cep-error"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="state">Estado*</label>
+                                <input type="text" id="state" name="state" required>
+                                <span class="error-message" id="state-error"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="city">Cidade*</label>
+                                <input type="text" id="city" name="city" required>
+                                <span class="error-message" id="city-error"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="neighborhood">Bairro*</label>
+                            <input type="text" id="neighborhood" name="neighborhood" required>
+                            <span class="error-message" id="neighborhood-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="street">Rua*</label>
+                            <input type="text" id="street" name="street" required>
+                            <span class="error-message" id="street-error"></span>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="number">Número*</label>
+                                <input type="text" id="number" name="number" required>
+                                <span class="error-message" id="number-error"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="complement">Complemento</label>
+                                <input type="text" id="complement" name="complement" placeholder="Apto, Bloco, etc.">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Seção 4: Informações Profissionais -->
+                    <section class="form-section">
+                        <h3><i class="fas fa-briefcase"></i> Informações Profissionais</h3>
+                        <div class="form-group">
+                            <label for="role">Cargo*</label>
+                            <select id="role" name="role" required>
+                                <option value="" disabled>Selecione um cargo</option>
+                                <option value="diretor">Diretor</option>
+                                <option value="gerente">Gerente</option>
+                                <option value="coordenador">Coordenador</option>
+                                <option value="analista">Analista</option>
+                                <option value="assistente">Assistente</option>
+                                <option value="estagiario">Estagiário</option>
+                            </select>
+                            <span class="error-message" id="role-error"></span>
+                        </div>
+                    </section>
+
+                    <div class="form-actions">
+                        <a href="meu-perfil.html" class="cancel-button">Cancelar</a>
+                        <button type="submit" id="submit-button">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para upload de foto -->
+    <div class="modal" id="photo-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Alterar Foto de Perfil</h2>
+            <div class="upload-area">
+                <input type="file" id="photo-upload" accept="image/*" style="display: none;">
+                <label for="photo-upload" class="upload-btn">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Escolher Imagem</span>
+                </label>
+                <p class="upload-info">Formatos aceitos: JPG, PNG. Tamanho máximo: 5MB</p>
+            </div>
+            <div class="preview-area" style="display: none;">
+                <img id="preview-image" src="#" alt="Preview">
+            </div>
+            <div class="modal-actions">
+                <button id="cancel-upload" class="cancel-button">Cancelar</button>
+                <button id="save-photo" class="primary-button">Salvar Foto</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/editar-perfil.js"></script>
+    <script src="assets/js/auth.js"></script>
+</body>
+</html>

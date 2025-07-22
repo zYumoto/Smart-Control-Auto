@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gastos Fixos</title>
+    <link rel="stylesheet" href="assets/css/financas.css">
+    <link rel="stylesheet" href="assets/css/gastos-fixos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header-simple">
+            <h1>Gastos Fixos</h1>
+            <div class="auth-buttons">
+                <a href="menu.html" class="auth-button"><i class="fas fa-th-large"></i> Menu</a>
+                <a href="#" id="logout-btn" class="auth-button"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </header>
+
+        <main>
+            <section class="fixed-expense-form-section">
+                <h2>Cadastrar Gasto Fixo</h2>
+                <form id="fixed-expense-form">
+                    <div class="form-group">
+                        <label for="expense-name">Nome do Gasto</label>
+                        <input type="text" id="expense-name" placeholder="Ex: Aluguel, Internet, Energia" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expense-amount">Valor (R$)</label>
+                            <input type="number" id="expense-amount" min="0.01" step="0.01" placeholder="0,00" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="expense-due-day">Dia de Vencimento</label>
+                            <input type="number" id="expense-due-day" min="1" max="31" placeholder="Dia" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-category">Categoria</label>
+                        <select id="expense-category" required>
+                            <option value="" disabled selected>Selecione uma categoria</option>
+                            <option value="aluguel">Aluguel</option>
+                            <option value="servicos">Serviços (Água, Luz, etc)</option>
+                            <option value="internet">Internet/Telefone</option>
+                            <option value="funcionarios">Funcionários</option>
+                            <option value="impostos">Impostos</option>
+                            <option value="software">Software/Assinaturas</option>
+                            <option value="outros">Outros</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expense-description">Descrição (opcional)</label>
+                        <textarea id="expense-description" rows="3" placeholder="Detalhes adicionais sobre o gasto"></textarea>
+                    </div>
+
+                    <button type="submit" id="add-expense">Cadastrar Gasto Fixo</button>
+                </form>
+            </section>
+
+            <section class="fixed-expenses-section">
+                <div class="filters">
+                    <h2>Gastos Fixos Cadastrados</h2>
+                    <div class="filter-controls">
+                        <div class="filter-group">
+                            <label for="filter-expense-category">Categoria</label>
+                            <select id="filter-expense-category">
+                                <option value="all">Todas</option>
+                                <option value="aluguel">Aluguel</option>
+                                <option value="servicos">Serviços (Água, Luz, etc)</option>
+                                <option value="internet">Internet/Telefone</option>
+                                <option value="funcionarios">Funcionários</option>
+                                <option value="impostos">Impostos</option>
+                                <option value="software">Software/Assinaturas</option>
+                                <option value="outros">Outros</option>
+                            </select>
+                        </div>
+
+                        <button id="clear-expense-filters">Limpar Filtros</button>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <h3>Total Mensal</h3>
+                    <div class="total-amount" id="total-monthly">R$ 0,00</div>
+                </div>
+
+                <div class="fixed-expenses-list" id="fixed-expenses-container">
+                    <!-- Gastos fixos serão inseridos aqui via JavaScript -->
+                    <div class="empty-state" id="empty-expenses-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>Nenhum gasto fixo cadastrado</p>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="register-all-expenses" class="btn-primary">
+                        <i class="fas fa-file-invoice-dollar"></i> Registrar Todos os Gastos do Mês
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <div class="modal" id="expense-register-modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Registrar Gasto</h2>
+                <form id="expense-register-form">
+                    <input type="hidden" id="register-expense-id">
+                    <div class="form-group">
+                        <label for="register-expense-name">Gasto</label>
+                        <input type="text" id="register-expense-name" readonly>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="register-expense-amount">Valor (R$)</label>
+                            <input type="number" id="register-expense-amount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-expense-date">Data de Pagamento</label>
+                            <input type="date" id="register-expense-date" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-expense-description">Descrição (opcional)</label>
+                        <input type="text" id="register-expense-description" placeholder="Detalhes do pagamento">
+                    </div>
+                    <button type="submit">Registrar Pagamento</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/gastos-fixos.js"></script>
+</body>
+</html>

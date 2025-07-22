@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil</title>
+    <link rel="stylesheet" href="assets/css/meu-perfil.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header-simple">
+            <h1>Meu Perfil</h1>
+            <div class="auth-buttons">
+                <a href="menu.html" class="auth-button"><i class="fas fa-th-large"></i> Menu</a>
+                <div class="profile-dropdown">
+                    <button class="profile-button" id="profile-btn">
+                        <div class="profile-photo">
+                            <img src="assets/img/default-avatar.svg" alt="Perfil" id="profile-image">
+                        </div>
+                        <span id="user-name">Meu Perfil</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-content" id="profile-dropdown-content">
+                        <a href="meu-perfil.html"><i class="fas fa-user"></i> Ver Perfil</a>
+                        <a href="editar-perfil.html"><i class="fas fa-edit"></i> Editar Perfil</a>
+                        <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <img src="assets/img/default-avatar.svg" alt="Foto de Perfil" id="user-avatar">
+                        <button class="change-photo-btn" id="change-photo-btn">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <div class="profile-info-header">
+                        <h2 id="profile-fullname">Nome do Usuário</h2>
+                        <p id="profile-role">Cargo</p>
+                    </div>
+                    <a href="editar-perfil.html" class="edit-profile-btn">
+                        <i class="fas fa-edit"></i> Editar Perfil
+                    </a>
+                </div>
+
+                <div class="profile-sections">
+                    <!-- Seção 1: Informações Pessoais -->
+                    <section class="profile-section">
+                        <h3><i class="fas fa-user"></i> Informações Pessoais</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Nome Completo</span>
+                                <span class="info-value" id="info-fullname">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Data de Nascimento</span>
+                                <span class="info-value" id="info-birthdate">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">CPF</span>
+                                <span class="info-value" id="info-cpf">-</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Seção 2: Contato -->
+                    <section class="profile-section">
+                        <h3><i class="fas fa-address-book"></i> Contato</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">E-mail</span>
+                                <span class="info-value" id="info-email">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Telefone</span>
+                                <span class="info-value" id="info-phone">-</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Seção 3: Endereço -->
+                    <section class="profile-section">
+                        <h3><i class="fas fa-map-marker-alt"></i> Endereço</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">CEP</span>
+                                <span class="info-value" id="info-cep">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Estado</span>
+                                <span class="info-value" id="info-state">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Cidade</span>
+                                <span class="info-value" id="info-city">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Bairro</span>
+                                <span class="info-value" id="info-neighborhood">-</span>
+                            </div>
+                            <div class="info-item full-width">
+                                <span class="info-label">Endereço Completo</span>
+                                <span class="info-value" id="info-full-address">-</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Seção 4: Informações Profissionais -->
+                    <section class="profile-section">
+                        <h3><i class="fas fa-briefcase"></i> Informações Profissionais</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Cargo</span>
+                                <span class="info-value" id="info-role">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Data de Cadastro</span>
+                                <span class="info-value" id="info-created-at">-</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para upload de foto -->
+    <div class="modal" id="photo-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Alterar Foto de Perfil</h2>
+            <div class="upload-area">
+                <input type="file" id="photo-upload" accept="image/*" style="display: none;">
+                <label for="photo-upload" class="upload-btn">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Escolher Imagem</span>
+                </label>
+                <p class="upload-info">Formatos aceitos: JPG, PNG. Tamanho máximo: 5MB</p>
+            </div>
+            <div class="preview-area" style="display: none;">
+                <img id="preview-image" src="#" alt="Preview">
+            </div>
+            <div class="modal-actions">
+                <button id="cancel-upload" class="cancel-button">Cancelar</button>
+                <button id="save-photo" class="primary-button">Salvar Foto</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/meu-perfil.js"></script>
+    <script src="assets/js/auth.js"></script>
+</body>
+</html>

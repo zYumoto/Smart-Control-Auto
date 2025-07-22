@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Principal</title>
+    <link rel="stylesheet" href="assets/css/menu.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="header-simple">
+        <h1>Sistema Financeiro</h1>
+        <div class="auth-buttons">
+            <a href="index.html" class="auth-button"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a href="#" id="logout-btn" class="auth-button"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </header>
+
+    <main class="content">
+        <div class="welcome-container">
+            <h2>Bem-vindo ao Sistema</h2>
+            <p>Você está logado como: <span id="user-email"></span></p>
+        </div>
+        
+        <nav class="grid-menu">
+            <a href="financas.html" class="menu-tile">
+                <i class="fas fa-chart-line"></i>
+                <h3>Transações</h3>
+                <p>Gerencie suas entradas e saídas</p>
+            </a>
+            <a href="produtos.html" class="menu-tile">
+                <i class="fas fa-box"></i>
+                <h3>Produtos</h3>
+                <p>Cadastre e gerencie seus produtos</p>
+            </a>
+            <a href="gastos-fixos.html" class="menu-tile">
+                <i class="fas fa-calendar-alt"></i>
+                <h3>Gastos Fixos</h3>
+                <p>Controle suas despesas recorrentes</p>
+            </a>
+            <a href="graficos.html" class="menu-tile">
+                <i class="fas fa-chart-pie"></i>
+                <h3>Gráficos</h3>
+                <p>Visualize dados e previsões</p>
+            </a>
+            <a href="cadastro.html" class="menu-tile">
+                <i class="fas fa-user-plus"></i>
+                <h3>Cadastrar Usuário</h3>
+                <p>Adicione novos usuários ao sistema</p>
+            </a>
+        </nav>
+    </main>
+
+    <script src="assets/js/menu.js"></script>
+</body>
+</html>

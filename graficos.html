@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráficos Financeiros</title>
+    <link rel="stylesheet" href="assets/css/graficos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header-simple">
+            <h1>Gráficos Financeiros</h1>
+            <div class="auth-buttons">
+                <a href="menu.html" class="auth-button"><i class="fas fa-th-large"></i> Menu</a>
+                <a href="#" id="logout-btn" class="auth-button"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </header>
+
+        <main>
+            <section class="charts-section">
+                <div class="chart-filters">
+                    <div class="filter-group">
+                        <label for="chart-period">Período</label>
+                        <select id="chart-period">
+                            <option value="month">Mês Atual</option>
+                            <option value="quarter">Último Trimestre</option>
+                            <option value="year">Último Ano</option>
+                            <option value="all">Todo o Período</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="chart-type">Tipo de Gráfico</label>
+                        <select id="chart-type">
+                            <option value="income-expense">Entradas vs Saídas</option>
+                            <option value="category">Por Categoria</option>
+                            <option value="trend">Tendência</option>
+                            <option value="product">Vendas por Produto</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h2>Entradas vs Saídas</h2>
+                        <div class="chart-wrapper">
+                            <canvas id="income-expense-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h2>Distribuição por Categoria</h2>
+                        <div class="chart-wrapper">
+                            <canvas id="category-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h2>Tendência Mensal</h2>
+                        <div class="chart-wrapper">
+                            <canvas id="trend-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h2>Vendas por Produto</h2>
+                        <div class="chart-wrapper">
+                            <canvas id="product-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="prediction-section">
+                <h2>Previsão Financeira com IA</h2>
+                <div class="prediction-card">
+                    <div class="prediction-header">
+                        <h3>Previsão para os próximos 3 meses</h3>
+                        <button id="generate-prediction" class="btn-primary"><i class="fas fa-magic"></i> Gerar Previsão</button>
+                    </div>
+                    <div class="prediction-content">
+                        <div class="prediction-chart-wrapper">
+                            <canvas id="prediction-chart"></canvas>
+                        </div>
+                        <div class="prediction-insights">
+                            <h4>Insights da IA</h4>
+                            <div id="prediction-text">
+                                <p>Clique em "Gerar Previsão" para analisar seus dados históricos e obter uma previsão financeira.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/graficos.js"></script>
+</body>
+</html>

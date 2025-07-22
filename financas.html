@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro</title>
+    <link rel="stylesheet" href="assets/css/financas.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header-simple">
+            <h1>Controle Financeiro</h1>
+            <div class="auth-buttons">
+                <a href="menu.html" class="auth-button"><i class="fas fa-th-large"></i> Menu</a>
+                <a href="#" id="logout-btn" class="auth-button"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </header>
+            <div class="balance-card">
+                <div class="balance-header">
+                    <h2>Saldo Total</h2>
+                </div>
+                <div class="balance-amount" id="total-balance">R$ 0,00</div>
+                <div class="balance-summary">
+                    <div class="income">
+                        <span class="label">Entradas</span>
+                        <span class="amount" id="total-income">R$ 0,00</span>
+                    </div>
+                    <div class="expenses">
+                        <span class="label">Saídas</span>
+                        <span class="amount" id="total-expenses">R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="transaction-form-section">
+                <h2>Nova Transação</h2>
+                <form id="transaction-form">
+                    <div class="form-group">
+                        <label for="transaction-type">Tipo</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="type" value="income" checked>
+                                <span>Entrada</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="type" value="expense">
+                                <span>Saída</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="product-selection-container" style="display: none;">
+                        <label for="product-select">Produto</label>
+                        <select id="product-select">
+                            <option value="" selected>Selecione um produto</option>
+                            <!-- Produtos serão carregados via JavaScript -->
+                        </select>
+                        <div class="form-row" id="product-quantity-container" style="margin-top: 10px; display: none;">
+                            <div class="form-group">
+                                <label for="product-quantity">Quantidade</label>
+                                <input type="number" id="product-quantity" min="1" value="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="product-unit-price">Preço Unitário (R$)</label>
+                                <input type="number" id="product-unit-price" min="0.01" step="0.01" placeholder="0,00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Descrição</label>
+                        <input type="text" id="description" placeholder="Descreva a transação" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="amount">Valor (R$)</label>
+                            <input type="number" id="amount" min="0.01" step="0.01" placeholder="0,00" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="date">Data</label>
+                            <input type="date" id="date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Categoria</label>
+                        <select id="category" required>
+                            <option value="" disabled selected>Selecione uma categoria</option>
+                            <optgroup label="Entradas">
+                                <option value="vendas">Vendas</option>
+                                <option value="servicos">Serviços</option>
+                                <option value="investimentos">Investimentos</option>
+                                <option value="outros-income">Outros</option>
+                            </optgroup>
+                            <optgroup label="Saídas">
+                                <option value="materiais">Materiais</option>
+                                <option value="aluguel">Aluguel</option>
+                                <option value="salarios">Salários</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="impostos">Impostos</option>
+                                <option value="outros-expense">Outros</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="register-product-sale" name="register-product-sale">
+                            <label for="register-product-sale">Registrar como venda de produto</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="add-transaction">Adicionar Transação</button>
+                </form>
+            </section>
+
+            <section class="transactions-section">
+                <div class="filters">
+                    <h2>Transações</h2>
+                    <div class="filter-controls">
+                        <div class="filter-group">
+                            <label for="filter-type">Tipo</label>
+                            <select id="filter-type">
+                                <option value="all">Todos</option>
+                                <option value="income">Entradas</option>
+                                <option value="expense">Saídas</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="filter-category">Categoria</label>
+                            <select id="filter-category">
+                                <option value="all">Todas</option>
+                                <optgroup label="Entradas">
+                                    <option value="vendas">Vendas</option>
+                                    <option value="servicos">Serviços</option>
+                                    <option value="investimentos">Investimentos</option>
+                                    <option value="outros-income">Outros</option>
+                                </optgroup>
+                                <optgroup label="Saídas">
+                                    <option value="materiais">Materiais</option>
+                                    <option value="aluguel">Aluguel</option>
+                                    <option value="salarios">Salários</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="impostos">Impostos</option>
+                                    <option value="outros-expense">Outros</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="filter-date">Data</label>
+                            <input type="month" id="filter-date">
+                        </div>
+
+                        <button id="clear-filters">Limpar Filtros</button>
+                    </div>
+                </div>
+
+                <div class="transactions-list" id="transactions-container">
+                    <!-- Transações serão inseridas aqui via JavaScript -->
+                    <div class="empty-state" id="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <p>Nenhuma transação encontrada</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/financas.js"></script>
+</body>
+</html>

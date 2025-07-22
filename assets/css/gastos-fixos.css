@@ -1,0 +1,265 @@
+/* Estilos específicos para a página de gastos fixos */
+
+/* Layout de gastos fixos */
+.fixed-expenses-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.expense-item {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.expense-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.expense-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.expense-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.expense-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--primary-dark);
+    margin: 0;
+}
+
+.expense-category {
+    font-size: 0.8rem;
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+    padding: 3px 8px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.expense-amount {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--expense-color);
+    margin-right: 20px;
+    white-space: nowrap;
+}
+
+.expense-due {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.expense-due i {
+    color: #ff9800;
+}
+
+.expense-description {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-top: 5px;
+}
+
+.expense-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-register, .btn-edit, .btn-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-register {
+    color: var(--primary-color);
+}
+
+.btn-edit {
+    color: #2196f3;
+}
+
+.btn-delete {
+    color: var(--expense-color);
+}
+
+.btn-register:hover, .btn-edit:hover, .btn-delete:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos para o card de resumo */
+.summary-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.summary-card h3 {
+    margin: 0 0 10px 0;
+    color: var(--primary-dark);
+    font-size: 1.2rem;
+}
+
+.total-amount {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--expense-color);
+}
+
+/* Estilos para botões de ação */
+.action-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Modal para registrar pagamento */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 80%;
+    max-width: 500px;
+    position: relative;
+    animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+    from {opacity: 0; transform: translateY(-50px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.close-modal {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.close-modal:hover {
+    color: var(--text-color);
+}
+
+/* Estilos para categorias específicas */
+.category-aluguel {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+.category-servicos {
+    background-color: rgba(33, 150, 243, 0.1);
+    color: #2196f3;
+}
+
+.category-internet {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+}
+
+.category-funcionarios {
+    background-color: rgba(156, 39, 176, 0.1);
+    color: #9c27b0;
+}
+
+.category-impostos {
+    background-color: rgba(255, 152, 0, 0.1);
+    color: #ff9800;
+}
+
+.category-software {
+    background-color: rgba(0, 188, 212, 0.1);
+    color: #00bcd4;
+}
+
+.category-outros {
+    background-color: rgba(158, 158, 158, 0.1);
+    color: #757575;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .expense-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .expense-amount {
+        margin-top: 10px;
+        margin-right: 0;
+    }
+    
+    .expense-actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 10px;
+    }
+    
+    .modal-content {
+        width: 90%;
+        margin: 20% auto;
+    }
+}

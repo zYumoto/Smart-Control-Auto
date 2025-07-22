@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Usuário</title>
+    <link rel="stylesheet" href="assets/css/styles-cadastro.css">
+</head>
+<body>
+    <div class="container">
+        <div class="signup-card">
+            <h1>Cadastro de Usuário</h1>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="fullname">Nome Completo</label>
+                    <input type="text" id="fullname" placeholder="Digite seu nome completo" autocomplete="name">
+                    <span class="error-message" id="fullname-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" placeholder="Digite seu e-mail" autocomplete="email">
+                    <span class="error-message" id="email-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" placeholder="Digite sua senha" autocomplete="new-password">
+                    <span class="error-message" id="password-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm-password">Confirmar Senha</label>
+                    <input type="password" id="confirm-password" placeholder="Confirme sua senha" autocomplete="new-password">
+                    <span class="error-message" id="confirm-password-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="role">Cargo</label>
+                    <select id="role" required>
+                        <option value="" disabled selected>Selecione um cargo</option>
+                        <option value="admin">Administrador</option>
+                        <option value="manager">Gerente</option>
+                        <option value="analyst">Analista</option>
+                        <option value="assistant">Assistente</option>
+                    </select>
+                    <span class="error-message" id="role-error"></span>
+                </div>
+                
+                <button type="submit" id="signup-button" disabled>Cadastrar</button>
+                
+                <div class="login-link">
+                    <p>Já tem uma conta? <a href="index.html">Faça login</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/cadastro.js"></script>
+</body>
+</html>
