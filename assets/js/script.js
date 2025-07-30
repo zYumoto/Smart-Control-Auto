@@ -91,6 +91,25 @@ class LoginForm {
     }
 
     initEvents() {
+        // Botão para mostrar/ocultar senha
+        const togglePasswordBtn = document.getElementById('toggle-password');
+        if (togglePasswordBtn) {
+            togglePasswordBtn.addEventListener('click', () => {
+                const type = this.passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                this.passwordInput.setAttribute('type', type);
+                
+                // Alternar ícone entre olho e olho riscado
+                const icon = togglePasswordBtn.querySelector('i');
+                if (type === 'text') {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        }
+        
         // Validar email ao digitar ou ao perder o foco
         this.emailInput.addEventListener('input', () => {
             const result = this.validateEmail(this.emailInput.value);
