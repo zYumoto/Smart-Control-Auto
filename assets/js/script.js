@@ -228,16 +228,30 @@ class LoginForm {
         }
     }
 
-    // Validar formato de e-mail
-    validateEmail(email) {
+    // Validar formato de e-mail ou nome de usuário
+    validateEmail(emailOrUsername) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         
-        if (!email) {
-            return { isValid: false, message: 'E-mail é obrigatório' };
+        if (!emailOrUsername) {
+            return { isValid: false, message: 'E-mail ou nome de usuário é obrigatório' };
         }
         
-        if (!emailRegex.test(email)) {
-            return { isValid: false, message: 'Formato de e-mail inválido' };
+        // Se contiver @, validar como email
+        if (emailOrUsername.includes('@')) {
+            if (!emailRegex.test(emailOrUsername)) {
+                return { isValid: false, message: 'Formato de e-mail inválido' };
+            }
+        } else {
+            // Validar como nome de usuário
+            if (emailOrUsername.length < 3) {
+                return { isValid: false, message: 'Nome de usuário deve ter pelo menos 3 caracteres' };
+            }
+            
+            // Verificar se contém apenas caracteres alfanuméricos e underscore
+            const usernameRegex = /^[a-zA-Z0-9_]+$/;
+            if (!usernameRegex.test(emailOrUsername)) {
+                return { isValid: false, message: 'Nome de usuário pode conter apenas letras, números e underscore' };
+            }
         }
         
         return { isValid: true, message: '' };
@@ -447,10 +461,45 @@ class LoginForm {
     // Método alternativo de recuperação de senha usando código de verificação
     useFallbackPasswordRecovery(email) {
         console.log(`Usando método alternativo de recuperação para: ${email}`);
+        
+        // Verificar se o código foi gerado
+        if (!this.generatedCode) {
+            this.generatedCode = this.generateVerificationCode();
+        }
+        
         console.log(`Código de verificação gerado: ${this.generatedCode}`);
         
-        // Mostrar o código diretamente ao usuário
-        alert(`Devido a um problema na configuração do servidor de email, não foi possível enviar o email de recuperação. Por favor, use o seguinte código para redefinir sua senha: ${this.generatedCode}`);
+        // Tentar enviar o código por email usando EmailJS como última tentativa
+        if (window.emailjs) {
+            try {
+                const templateParams = {
+                    to_email: email,
+                    verification_code: this.generatedCode,
+                    message: 'Use este código para redefinir sua senha no sistema Smart Control Auto.',
+                    from_name: 'Smart Control Auto'                    
+                };
+                
+                // Tentar enviar email usando EmailJS
+                emailjs.send('service_vfgx4of', 'template_dc1v56o', templateParams)
+                    .then(() => {
+                        console.log('Email enviado com sucesso via EmailJS');
+                        alert(`Um código de verificação foi enviado para ${email}. Por favor, verifique sua caixa de entrada e spam.`);
+                    })
+                    .catch((error) => {
+                        console.error('Falha ao enviar email via EmailJS:', error);
+                        // Mostrar o código diretamente ao usuário como último recurso
+                        alert(`Não foi possível enviar o email de recuperação. Por favor, use o seguinte código para redefinir sua senha: ${this.generatedCode}`);
+                    });
+            } catch (error) {
+                console.error('Erro ao tentar usar EmailJS:', error);
+                // Mostrar o código diretamente ao usuário
+                alert(`Não foi possível enviar o email de recuperação. Por favor, use o seguinte código para redefinir sua senha: ${this.generatedCode}`);
+            }
+        } else {
+            console.error('EmailJS não está disponível');
+            // Mostrar o código diretamente ao usuário
+            alert(`Não foi possível enviar o email de recuperação. Por favor, use o seguinte código para redefinir sua senha: ${this.generatedCode}`);
+        }
         
         // Fechar o modal atual e abrir o modal de verificação de código
         this.closeModal(this.forgotPasswordModal);
@@ -484,59 +533,103 @@ class LoginForm {
         this.openModal(this.newPasswordModal);
     }
     
-    // Validar se as senhas coincidem
-    validatePasswordMatch() {
-        const password = this.newPasswordInput.value;
+    // Salvar nova senha
+    async saveNewPassword() {
+        const newPassword = this.newPasswordInput.value;
         const confirmPassword = this.confirmPasswordInput.value;
         
-        if (!confirmPassword) {
-            this.updateFieldStatus(
-                this.confirmPasswordInput, 
-                this.confirmPasswordError, 
-                { isValid: false, message: 'Confirme sua senha' }
-            );
-            return false;
-        }
+        // Validar senha
+        const passwordResult = this.validatePassword(newPassword);
+        this.updateFieldStatus(this.newPasswordInput, this.newPasswordError, passwordResult);
         
-        if (password !== confirmPassword) {
+        // Verificar se as senhas coincidem
+        if (newPassword !== confirmPassword) {
             this.updateFieldStatus(
                 this.confirmPasswordInput, 
                 this.confirmPasswordError, 
                 { isValid: false, message: 'As senhas não coincidem' }
             );
-            return false;
+            return;
+        } else {
+            this.updateFieldStatus(
+                this.confirmPasswordInput, 
+                this.confirmPasswordError, 
+                { isValid: true, message: '' }
+            );
         }
-        
-        this.updateFieldStatus(
-            this.confirmPasswordInput, 
-            this.confirmPasswordError, 
-            { isValid: true, message: '' }
-        );
-        return true;
-    }
-    
-    // Salvar nova senha
-    saveNewPassword() {
-        const password = this.newPasswordInput.value;
-        const passwordResult = this.validatePassword(password);
         
         if (!passwordResult.isValid) {
-            this.updateFieldStatus(this.newPasswordInput, this.newPasswordError, passwordResult);
             return;
         }
         
-        if (!this.validatePasswordMatch()) {
-            return;
+        // Desabilitar o botão durante o processo
+        this.savePasswordBtn.disabled = true;
+        this.savePasswordBtn.textContent = 'Salvando...';
+        
+        try {
+            // Tentar atualizar a senha no Firebase primeiro
+            let success = false;
+            
+            if (window.firebaseAuth) {
+                try {
+                    console.log('Tentando atualizar senha via Firebase...');
+                    
+                    // Verificar se o usuário existe no Firebase
+                    const emailExists = await window.firebaseAuth.checkEmailExists(this.recoveryEmail);
+                    
+                    if (emailExists.success) {
+                        // Enviar email de redefinição de senha pelo Firebase
+                        const result = await window.firebaseAuth.resetPassword(this.recoveryEmail);
+                        
+                        if (result.success) {
+                            // Fechar o modal
+                            this.closeModal(this.newPasswordModal);
+                            
+                            // Mostrar mensagem de sucesso
+                            alert(`Um email de redefinição de senha foi enviado para ${this.recoveryEmail}. Por favor, verifique sua caixa de entrada e spam e siga as instruções para redefinir sua senha.`);
+                            success = true;
+                        } else {
+                            console.error('Erro ao enviar email de redefinição de senha:', result.error);
+                        }
+                    } else {
+                        console.log('Email não encontrado no Firebase, tentando localStorage...');
+                    }
+                } catch (error) {
+                    console.error('Erro ao atualizar senha via Firebase:', error);
+                }
+            }
+            
+            // Se não conseguiu atualizar via Firebase, tentar via localStorage
+            if (!success) {
+                console.log('Tentando atualizar senha via localStorage...');
+                success = this.updateUserPassword(this.recoveryEmail, newPassword);
+            }
+            
+            if (success) {
+                // Fechar o modal
+                this.closeModal(this.newPasswordModal);
+                
+                // Mostrar mensagem de sucesso
+                alert('Senha atualizada com sucesso! Faça login com sua nova senha.');
+                
+                // Limpar campos e focar no login
+                this.clearPasswordRecoveryFields();
+            } else {
+                // Mostrar mensagem de erro
+                alert('Ocorreu um erro ao atualizar a senha. Por favor, tente novamente.');
+            }
+        } catch (error) {
+            console.error('Erro ao salvar nova senha:', error);
+            alert('Ocorreu um erro ao atualizar a senha. Por favor, tente novamente.');
+        } finally {
+            // Restaurar o botão
+            this.savePasswordBtn.disabled = false;
+            this.savePasswordBtn.textContent = 'Salvar Nova Senha';
         }
-        
-        // Atualizar a senha do usuário
-        this.updateUserPassword(this.recoveryEmail, password);
-        
-        // Fechar o modal e mostrar mensagem de sucesso
-        this.closeModal(this.newPasswordModal);
-        alert('Senha alterada com sucesso! Faça login com sua nova senha.');
-        
-        // Limpar campos
+    }
+    
+    // Método para limpar campos de recuperação de senha e focar no login
+    clearPasswordRecoveryFields() {
         this.recoveryEmailInput.value = '';
         this.verificationCodeInput.value = '';
         this.newPasswordInput.value = '';
@@ -560,7 +653,6 @@ class LoginForm {
                 }
             } catch (error) {
                 console.error('Erro ao verificar email no Firebase:', error);
-                // Continuar com o fallback para localStorage
             }
         }
         
@@ -591,7 +683,7 @@ class LoginForm {
                 const result = await window.firebaseAuth.resetPassword(email);
                 if (result.success) {
                     console.log('Email de recuperação de senha enviado via Firebase Auth');
-                    return;
+                    return true;
                 }
             } catch (error) {
                 console.error('Erro ao resetar senha no Firebase:', error);
@@ -599,31 +691,45 @@ class LoginForm {
             }
         }
         
-        // Fallback para localStorage
-        // Lista padrão de usuários válidos
-        let validUsers = [
-            { email: 'admin@example.com', password: 'admin123', professionalInfo: { role: 'diretor' } },
-            { email: 'user@example.com', password: 'user123', professionalInfo: { role: 'analista' } },
-            { email: 'teste@teste.com', password: 'teste123', professionalInfo: { role: 'assistente' } }
-        ];
-        
-        // Verificar se há usuários adicionais no localStorage
-        const storedValidUsers = localStorage.getItem('validUsers');
-        if (storedValidUsers) {
-            // Combinar os usuários padrão com os usuários armazenados
-            validUsers = [...validUsers, ...JSON.parse(storedValidUsers)];
-        }
-        
-        // Encontrar e atualizar o usuário
-        const updatedUsers = validUsers.map(user => {
-            if (user.email === email) {
-                return { ...user, password: newPassword };
+        try {
+            // Fallback para localStorage
+            // Lista padrão de usuários válidos
+            let validUsers = [
+                { email: 'admin@example.com', password: 'admin123', professionalInfo: { role: 'diretor' } },
+                { email: 'user@example.com', password: 'user123', professionalInfo: { role: 'analista' } },
+                { email: 'teste@teste.com', password: 'teste123', professionalInfo: { role: 'assistente' } }
+            ];
+            
+            // Verificar se há usuários adicionais no localStorage
+            const storedValidUsers = localStorage.getItem('validUsers');
+            if (storedValidUsers) {
+                // Combinar os usuários padrão com os usuários armazenados
+                validUsers = [...validUsers, ...JSON.parse(storedValidUsers)];
             }
-            return user;
-        });
-        
-        // Salvar os usuários atualizados no localStorage
-        localStorage.setItem('validUsers', JSON.stringify(updatedUsers));
+            
+            // Verificar se o usuário existe
+            const userExists = validUsers.some(user => user.email === email);
+            if (!userExists) {
+                console.error('Usuário não encontrado no localStorage:', email);
+                return false;
+            }
+            
+            // Encontrar e atualizar o usuário
+            const updatedUsers = validUsers.map(user => {
+                if (user.email === email) {
+                    return { ...user, password: newPassword };
+                }
+                return user;
+            });
+            
+            // Salvar os usuários atualizados no localStorage
+            localStorage.setItem('validUsers', JSON.stringify(updatedUsers));
+            console.log('Senha atualizada com sucesso no localStorage');
+            return true;
+        } catch (error) {
+            console.error('Erro ao atualizar senha no localStorage:', error);
+            return false;
+        }
     }
 }
 
@@ -636,8 +742,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (window.firebaseDB && typeof window.firebaseDB.addDefaultUsers === 'function') {
         try {
             console.log('Inicializando usuários padrão no Firebase...');
-            await window.firebaseDB.addDefaultUsers();
-            console.log('Usuários padrão inicializados com sucesso!');
+            window.firebaseDB.addDefaultUsers().then(() => {
+                console.log('Usuários padrão inicializados com sucesso!');
+            }).catch((error) => {
+                console.error('Erro ao inicializar usuários padrão:', error);
+            });
         } catch (error) {
             console.error('Erro ao inicializar usuários padrão:', error);
         }

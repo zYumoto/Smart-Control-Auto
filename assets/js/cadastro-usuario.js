@@ -50,7 +50,9 @@ class UserRegistrationForm {
         this.form = document.getElementById('user-registration-form');
         
         // Campos de informações pessoais
-        this.fullnameInput = document.getElementById('fullname');
+        this.firstnameInput = document.getElementById('firstname');
+        this.lastnameInput = document.getElementById('lastname');
+        this.usernameInput = document.getElementById('username');
         this.birthdateInput = document.getElementById('birthdate');
         this.cpfInput = document.getElementById('cpf');
         
@@ -76,7 +78,9 @@ class UserRegistrationForm {
         this.cancelButton = document.getElementById('cancel-button');
         
         // Elementos de erro
-        this.fullnameError = document.getElementById('fullname-error');
+        this.firstnameError = document.getElementById('firstname-error');
+        this.lastnameError = document.getElementById('lastname-error');
+        this.usernameError = document.getElementById('username-error');
         this.birthdateError = document.getElementById('birthdate-error');
         this.cpfError = document.getElementById('cpf-error');
         this.emailError = document.getElementById('email-error');
@@ -89,8 +93,33 @@ class UserRegistrationForm {
         this.numberError = document.getElementById('number-error');
         this.roleError = document.getElementById('role-error');
         
+        // Verificar permissões do usuário atual
+        this.checkUserPermissions();
+        
         // Inicializar eventos
         this.initEvents();
+    }
+    
+    // Verificar se o usuário atual tem permissão para cadastrar novos usuários
+    checkUserPermissions() {
+        // Verificar se há um usuário logado
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        if (currentUser) {
+            // Verificar se o usuário é diretor ou RH
+            const userRole = currentUser.professionalInfo?.role || '';
+            
+            if (userRole !== 'diretor' && userRole !== 'rh') {
+                // Exibir mensagem de acesso negado
+                alert('Acesso negado. Apenas usuários com cargo de Diretor ou RH podem cadastrar novos usuários.');
+                // Redirecionar para o menu
+                window.location.href = 'menu.html';
+            }
+        } else {
+            // Se não há usuário logado, redirecionar para a página de login
+            alert('Você precisa estar logado para acessar esta página.');
+            window.location.href = 'index.html';
+        }
     }
     
     initEvents() {
@@ -109,9 +138,19 @@ class UserRegistrationForm {
         });
         
         // Validação em tempo real
-        this.fullnameInput.addEventListener('input', () => {
-            const result = this.validateFullname(this.fullnameInput.value);
-            this.updateFieldStatus(this.fullnameInput, this.fullnameError, result);
+        this.firstnameInput.addEventListener('input', () => {
+            const result = this.validateName(this.firstnameInput.value);
+            this.updateFieldStatus(this.firstnameInput, this.firstnameError, result);
+        });
+        
+        this.lastnameInput.addEventListener('input', () => {
+            const result = this.validateName(this.lastnameInput.value);
+            this.updateFieldStatus(this.lastnameInput, this.lastnameError, result);
+        });
+        
+        this.usernameInput.addEventListener('input', () => {
+            const result = this.validateUsername(this.usernameInput.value);
+            this.updateFieldStatus(this.usernameInput, this.usernameError, result);
         });
         
         this.birthdateInput.addEventListener('change', () => {
@@ -157,7 +196,10 @@ class UserRegistrationForm {
                 // Criar objeto com os dados do usuário
                 const userData = {
                     personalInfo: {
-                        fullname: this.fullnameInput.value,
+                        firstname: this.firstnameInput.value,
+                        lastname: this.lastnameInput.value,
+                        fullname: `${this.firstnameInput.value} ${this.lastnameInput.value}`,
+                        username: this.usernameInput.value,
                         birthdate: this.birthdateInput.value,
                         cpf: this.cpfInput.value
                     },
@@ -292,22 +334,52 @@ class UserRegistrationForm {
             });
     }
     
-    // Validar nome completo
-    validateFullname(fullname) {
-        if (!fullname.trim()) {
-            return { isValid: false, message: 'Nome completo é obrigatório' };
+    // Validar nome ou sobrenome
+    validateName(name) {
+        if (!name) {
+            return { isValid: false, message: 'Campo obrigatório.' };
         }
         
-        if (fullname.trim().length < 3) {
-            return { isValid: false, message: 'Nome muito curto' };
+        if (name.length < 2) {
+            return { isValid: false, message: 'Deve ter pelo menos 2 caracteres.' };
         }
         
-        // Verificar se o nome contém pelo menos um sobrenome
-        if (!fullname.trim().includes(' ')) {
-            return { isValid: false, message: 'Digite nome e sobrenome' };
+        if (!/^[A-Za-z\u00C0-\u00ff\s]+$/.test(name)) {
+            return { isValid: false, message: 'Deve conter apenas letras e espaços.' };
         }
         
         return { isValid: true, message: '' };
+    }
+    
+    // Validar nome de usuário
+    validateUsername(username) {
+        if (!username) {
+            return { isValid: false, message: 'Nome de usuário é obrigatório.' };
+        }
+        
+        if (username.length < 4) {
+            return { isValid: false, message: 'Nome de usuário deve ter pelo menos 4 caracteres.' };
+        }
+        
+        if (!/^[A-Za-z0-9_\.]+$/.test(username)) {
+            return { isValid: false, message: 'Nome de usuário deve conter apenas letras, números, pontos e underscores.' };
+        }
+        
+        // Verificar se o nome de usuário já existe
+        const usernameExists = this.checkUsernameExists(username);
+        if (usernameExists) {
+            return { isValid: false, message: 'Este nome de usuário já está em uso.' };
+        }
+        
+        return { isValid: true, message: '' };
+    }
+    
+    // Verificar se o nome de usuário já existe
+    checkUsernameExists(username) {
+        // Verificar no Firebase
+        // Implementação temporária - será atualizada para usar Firebase
+        const users = JSON.parse(localStorage.getItem('validUsers')) || [];
+        return users.some(user => user.username && user.username.toLowerCase() === username.toLowerCase());
     }
     
     // Validar data de nascimento
@@ -425,7 +497,9 @@ class UserRegistrationForm {
     
     // Validar todos os campos
     validateAllFields() {
-        const fullnameResult = this.validateFullname(this.fullnameInput.value);
+        const firstnameResult = this.validateName(this.firstnameInput.value);
+        const lastnameResult = this.validateName(this.lastnameInput.value);
+        const usernameResult = this.validateUsername(this.usernameInput.value);
         const birthdateResult = this.validateBirthdate(this.birthdateInput.value);
         const cpfResult = this.validateCPF(this.cpfInput.value);
         const emailResult = this.validateEmail(this.emailInput.value);
@@ -484,7 +558,9 @@ class UserRegistrationForm {
         }
         
         // Atualizar status dos campos
-        this.updateFieldStatus(this.fullnameInput, this.fullnameError, fullnameResult);
+        this.updateFieldStatus(this.firstnameInput, this.firstnameError, firstnameResult);
+        this.updateFieldStatus(this.lastnameInput, this.lastnameError, lastnameResult);
+        this.updateFieldStatus(this.usernameInput, this.usernameError, usernameResult);
         this.updateFieldStatus(this.birthdateInput, this.birthdateError, birthdateResult);
         this.updateFieldStatus(this.cpfInput, this.cpfError, cpfResult);
         this.updateFieldStatus(this.emailInput, this.emailError, emailResult);
@@ -492,7 +568,9 @@ class UserRegistrationForm {
         this.updateFieldStatus(this.roleSelect, this.roleError, roleResult);
         
         // Verificar se todos os campos estão válidos
-        return fullnameResult.isValid && 
+        return firstnameResult.isValid && 
+               lastnameResult.isValid && 
+               usernameResult.isValid && 
                birthdateResult.isValid && 
                cpfResult.isValid && 
                emailResult.isValid && 

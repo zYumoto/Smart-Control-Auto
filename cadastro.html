@@ -11,40 +11,114 @@
         <div class="signup-card">
             <h1>Cadastro de Usuário</h1>
             <form id="signup-form">
-                <div class="form-group">
-                    <label for="fullname">Nome Completo</label>
-                    <input type="text" id="fullname" placeholder="Digite seu nome completo" autocomplete="name">
-                    <span class="error-message" id="fullname-error"></span>
+                <!-- Informações Pessoais -->
+                <h2>Informações Pessoais</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstname">Nome</label>
+                        <input type="text" id="firstname" placeholder="Digite seu nome" autocomplete="given-name">
+                        <span class="error-message" id="firstname-error"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastname">Sobrenome</label>
+                        <input type="text" id="lastname" placeholder="Digite seu sobrenome" autocomplete="family-name">
+                        <span class="error-message" id="lastname-error"></span>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" placeholder="Digite seu e-mail" autocomplete="email">
-                    <span class="error-message" id="email-error"></span>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" placeholder="Digite seu e-mail" autocomplete="email">
+                        <span class="error-message" id="email-error"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="username">Nome de Usuário</label>
+                        <input type="text" id="username" placeholder="Digite seu nome de usuário" autocomplete="username">
+                        <span class="error-message" id="username-error"></span>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="password">Senha</label>
-                    <input type="password" id="password" placeholder="Digite sua senha" autocomplete="new-password">
-                    <span class="error-message" id="password-error"></span>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Telefone</label>
+                        <input type="tel" id="phone" placeholder="(00) 00000-0000" autocomplete="tel">
+                        <span class="error-message" id="phone-error"></span>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="confirm-password">Confirmar Senha</label>
-                    <input type="password" id="confirm-password" placeholder="Confirme sua senha" autocomplete="new-password">
-                    <span class="error-message" id="confirm-password-error"></span>
+                <!-- Endereço -->
+                <h2>Endereço</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cep">CEP</label>
+                        <div class="input-with-button">
+                            <input type="text" id="cep" placeholder="00000-000" maxlength="9">
+                            <button type="button" id="search-cep-btn">Buscar</button>
+                        </div>
+                        <span class="error-message" id="cep-error"></span>
+                    </div>
                 </div>
                 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="street">Rua</label>
+                        <input type="text" id="street" placeholder="Nome da rua" autocomplete="address-line1">
+                        <span class="error-message" id="street-error"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="number">Número</label>
+                        <input type="text" id="number" placeholder="Número" autocomplete="address-line2">
+                        <span class="error-message" id="number-error"></span>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="neighborhood">Bairro</label>
+                        <input type="text" id="neighborhood" placeholder="Bairro" autocomplete="address-level2">
+                        <span class="error-message" id="neighborhood-error"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="complement">Complemento (opcional)</label>
+                        <input type="text" id="complement" placeholder="Complemento" autocomplete="address-line3">
+                        <span class="error-message" id="complement-error"></span>
+                    </div>
+                </div>
+                
+                <!-- Informações Profissionais -->
+                <h2>Informações Profissionais</h2>
                 <div class="form-group">
                     <label for="role">Cargo</label>
                     <select id="role" required>
                         <option value="" disabled selected>Selecione um cargo</option>
-                        <option value="admin">Administrador</option>
-                        <option value="manager">Gerente</option>
-                        <option value="analyst">Analista</option>
-                        <option value="assistant">Assistente</option>
+                        <option value="diretor">Diretor</option>
+                        <option value="rh">RH</option>
+                        <option value="gerente">Gerente</option>
+                        <option value="analista">Analista</option>
+                        <option value="assistente">Assistente</option>
                     </select>
                     <span class="error-message" id="role-error"></span>
+                </div>
+                
+                <!-- Senha -->
+                <h2>Senha</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" placeholder="Digite sua senha" autocomplete="new-password">
+                        <span class="error-message" id="password-error"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Confirmar Senha</label>
+                        <input type="password" id="confirm-password" placeholder="Confirme sua senha" autocomplete="new-password">
+                        <span class="error-message" id="confirm-password-error"></span>
+                    </div>
                 </div>
                 
                 <button type="submit" id="signup-button" disabled>Cadastrar</button>
@@ -56,6 +130,13 @@
         </div>
     </div>
 
+    <!-- Scripts do Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+    
+    <!-- Script de cadastro -->
     <script src="assets/js/cadastro.js"></script>
 </body>
 </html>

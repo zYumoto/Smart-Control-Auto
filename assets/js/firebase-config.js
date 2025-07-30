@@ -40,9 +40,47 @@ const firebaseAuth = {
     }
   },
   
-  // Fazer login
-  loginUser: async (email, password) => {
+  // Buscar usuário por nome de usuário
+  getUserByUsername: async (username) => {
     try {
+      // Buscar no Realtime Database todos os usuários
+      const snapshot = await database.ref('users').once('value');
+      const users = snapshot.val();
+      
+      // Procurar por um usuário com o nome de usuário fornecido
+      if (users) {
+        for (const userId in users) {
+          const userData = users[userId];
+          if (userData.personalInfo && userData.personalInfo.username && 
+              userData.personalInfo.username.toLowerCase() === username.toLowerCase()) {
+            return { success: true, userId, email: userData.email };
+          }
+        }
+      }
+      
+      return { success: false, error: 'Usuário não encontrado' };
+    } catch (error) {
+      console.error("Erro ao buscar usuário por nome de usuário:", error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // Fazer login (com email ou nome de usuário)
+  loginUser: async (emailOrUsername, password) => {
+    try {
+      let email = emailOrUsername;
+      
+      // Verificar se o input é um email ou nome de usuário
+      if (!emailOrUsername.includes('@')) {
+        // É um nome de usuário, buscar o email correspondente
+        const userResult = await firebaseAuth.getUserByUsername(emailOrUsername);
+        if (!userResult.success) {
+          return { success: false, error: 'Nome de usuário não encontrado' };
+        }
+        email = userResult.email;
+      }
+      
+      // Fazer login com o email
       const userCredential = await auth.signInWithEmailAndPassword(email, password);
       const user = userCredential.user;
       

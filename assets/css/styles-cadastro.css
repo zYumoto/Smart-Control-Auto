@@ -6,16 +6,17 @@
 }
 
 body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #ac58aa 100%);
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 30px 0;
 }
 
 .container {
     width: 100%;
-    max-width: 500px;
+    max-width: 800px;
     padding: 20px;
 }
 
@@ -24,17 +25,40 @@ body {
     border-radius: 10px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     padding: 30px;
+    overflow-y: auto;
+    max-height: 90vh;
 }
 
 h1 {
     color: #333;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     font-size: 28px;
+}
+
+h2 {
+    color: #ac58aa;
+    margin: 25px 0 15px;
+    font-size: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -10px;
 }
 
 .form-group {
     margin-bottom: 20px;
+    padding: 0 10px;
+    flex: 1 1 100%;
+}
+
+.form-row .form-group {
+    flex: 1 1 calc(50% - 20px);
+    min-width: 200px;
 }
 
 label {
@@ -42,6 +66,22 @@ label {
     margin-bottom: 8px;
     font-weight: 500;
     color: #555;
+}
+
+.input-with-button {
+    display: flex;
+    gap: 10px;
+}
+
+.input-with-button input {
+    flex: 1;
+}
+
+.input-with-button button {
+    width: auto;
+    margin-top: 0;
+    padding: 0 15px;
+    white-space: nowrap;
 }
 
 input, select {
@@ -55,8 +95,8 @@ input, select {
 
 input:focus, select:focus {
     outline: none;
-    border-color: #764ba2;
-    box-shadow: 0 0 0 2px rgba(118, 75, 162, 0.2);
+    border-color: #ac58aa;
+    box-shadow: 0 0 0 2px rgba(172, 88, 170, 0.2);
 }
 
 input.error, select.error {
@@ -73,7 +113,7 @@ input.error, select.error {
 
 button {
     width: 100%;
-    background-color: #764ba2;
+    background-color: #ac58aa;
     color: white;
     border: none;
     border-radius: 5px;
@@ -86,11 +126,11 @@ button {
 }
 
 button:hover:not(:disabled) {
-    background-color: #663c91;
+    background-color: #9a4c98;
 }
 
 button:disabled {
-    background-color: #a992c2;
+    background-color: #d5a8d4;
     cursor: not-allowed;
 }
 
@@ -100,7 +140,7 @@ button:disabled {
 }
 
 .login-link a {
-    color: #764ba2;
+    color: #ac58aa;
     text-decoration: none;
     font-weight: 500;
 }
@@ -110,9 +150,10 @@ button:disabled {
 }
 
 /* Responsividade */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
     .container {
-        padding: 10px;
+        padding: 15px;
+        max-width: 95%;
     }
     
     .signup-card {
@@ -121,10 +162,32 @@ button:disabled {
     
     h1 {
         font-size: 24px;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
     }
     
-    input {
+    h2 {
+        font-size: 18px;
+        margin: 20px 0 10px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-row .form-group {
+        flex: 1 1 100%;
+    }
+    
+    input, select {
         padding: 10px 12px;
+    }
+    
+    .input-with-button {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .input-with-button button {
+        width: 100%;
     }
 }
