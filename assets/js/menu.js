@@ -306,26 +306,36 @@ async function checkUserRole(userId = null, userEmail = null) {
             }
         }
         
-        // Se o usuário é diretor, mostrar o tile de visualização de usuários
+        // Se o usuário é diretor, mostrar o tile de gerenciamento de usuários
         if (isDirector) {
-            // Verificar se o tile já existe para evitar duplicação
-            if (!document.getElementById('view-users-tile')) {
-                const viewUsersTile = document.createElement('div');
-                viewUsersTile.className = 'menu-tile';
-                viewUsersTile.id = 'view-users-tile';
-                viewUsersTile.innerHTML = '<i class="fas fa-users"></i><span>Usuários Cadastrados</span>';
+            console.log('Usuário é diretor, exibindo botão de gerenciamento de usuários');
+            // Mostrar o botão de gerenciamento de usuários que já existe no HTML
+            const adminUsersTile = document.getElementById('admin-users-tile');
+            if (adminUsersTile) {
+                adminUsersTile.style.display = 'flex';
                 
-                // Adicionar ao menu
-                const menuContainer = document.querySelector('.menu-container');
-                if (menuContainer) {
-                    menuContainer.appendChild(viewUsersTile);
-                    
-                    // Adicionar evento de clique
-                    viewUsersTile.addEventListener('click', (e) => {
+                // Adicionar evento de clique se ainda não tiver
+                if (!adminUsersTile.hasAttribute('data-event-attached')) {
+                    adminUsersTile.addEventListener('click', (e) => {
                         e.preventDefault();
-                        showUsersModal();
+                        // Mostrar o modal de gerenciamento de usuários
+                        const adminUsersModal = document.getElementById('admin-users-modal');
+                        if (adminUsersModal) {
+                            adminUsersModal.style.display = 'block';
+                            // Carregar a lista de usuários
+                            loadUsersList();
+                        }
                     });
+                    adminUsersTile.setAttribute('data-event-attached', 'true');
                 }
+            } else {
+                console.error('Elemento admin-users-tile não encontrado no HTML');
+            }
+        } else {
+            console.log('Usuário não é diretor, ocultando botão de gerenciamento de usuários');
+            const adminUsersTile = document.getElementById('admin-users-tile');
+            if (adminUsersTile) {
+                adminUsersTile.style.display = 'none';
             }
         }
         
@@ -451,14 +461,190 @@ function createUsersList(users) {
 
 // Função para obter o nome formatado do cargo
 function getRoleName(role) {
-    const roles = {
-        'diretor': 'Diretor',
-        'gerente': 'Gerente',
-        'coordenador': 'Coordenador',
-        'analista': 'Analista',
-        'assistente': 'Assistente',
-        'estagiario': 'Estagiário'
-    };
+    switch(role) {
+        case 'diretor':
+            return 'Diretor';
+        case 'rh':
+            return 'RH';
+        case 'gerente':
+            return 'Gerente';
+        case 'supervisor':
+            return 'Supervisor';
+        default:
+            return 'Usuário';
+    }
+}
+
+// Função para carregar a lista de usuários no modal de gerenciamento
+async function loadUsersList() {
+    console.log('Carregando lista de usuários para o modal de gerenciamento...');
     
-    return roles[role] || role;
+    const usersTableBody = document.querySelector('#admin-users-modal .users-table tbody');
+    const loadingMessage = document.querySelector('#admin-users-modal .loading-message');
+    const errorMessage = document.querySelector('#admin-users-modal .error-message');
+    
+    if (!usersTableBody) {
+        console.error('Elemento da tabela de usuários não encontrado');
+        return;
+    }
+
+    // Mostrar mensagem de carregamento
+    if (loadingMessage) loadingMessage.style.display = 'block';
+    if (errorMessage) errorMessage.style.display = 'none';
+    usersTableBody.innerHTML = '';
+
+    try {
+        // Verificar se o Firebase está disponível
+        if (!window.firebaseDB) {
+            throw new Error('Firebase não está disponível');
+        }
+
+        // Buscar todos os usuários do Firebase
+        const result = await window.firebaseDB.getAllUsers();
+
+        if (result.success && result.users && result.users.length > 0) {
+            console.log(`${result.users.length} usuários encontrados`);
+
+            // Ocultar mensagem de carregamento
+            if (loadingMessage) loadingMessage.style.display = 'none';
+
+            // Preencher a tabela com os dados dos usuários
+            result.users.forEach(user => {
+                const row = document.createElement('tr');
+
+                // Obter informações do usuário de forma segura
+                const firstName = user.personalInfo?.firstname || '';
+                const lastName = user.personalInfo?.lastname || '';
+                const fullName = firstName && lastName ? `${firstName} ${lastName}` : (user.personalInfo?.username || 'Nome indisponível');
+                const email = user.personalInfo?.email || user.email || 'Email indisponível';
+                const role = user.professionalInfo?.role ? getRoleName(user.professionalInfo.role) : 'Usuário';
+
+                // Criar células da tabela
+                row.innerHTML = `
+                    <td>${fullName}</td>
+                    <td>${email}</td>
+                    <td>${role}</td>
+                    <td class="user-actions">
+                        <button class="action-btn edit-btn" data-user-id="${user.uid}" title="Editar usuário">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" data-user-id="${user.uid}" title="Excluir usuário">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                `;
+
+                usersTableBody.appendChild(row);
+            });
+
+            // Adicionar eventos aos botões de ação
+            setupUserActionButtons();
+
+        } else {
+            console.log('Nenhum usuário encontrado ou erro ao buscar usuários');
+            usersTableBody.innerHTML = `<tr><td colspan="4" class="empty-message">Nenhum usuário encontrado</td></tr>`;
+            if (loadingMessage) loadingMessage.style.display = 'none';
+        }
+
+    } catch (error) {
+        console.error('Erro ao carregar lista de usuários:', error);
+        usersTableBody.innerHTML = `<tr><td colspan="4" class="error-message">Erro ao carregar usuários: ${error.message}</td></tr>`;
+        if (loadingMessage) loadingMessage.style.display = 'none';
+        if (errorMessage) {
+            errorMessage.textContent = `Erro: ${error.message}`;
+            errorMessage.style.display = 'block';
+        }
+    }
+}
+
+// Função para configurar os botões de ação da tabela de usuários
+function setupUserActionButtons() {
+    // Botões de edição
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            openEditUserModal(userId);
+        });
+    });
+
+    // Botões de exclusão
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            confirmDeleteUser(userId);
+        });
+    });
+}
+
+// Função para abrir o modal de edição de usuário
+async function openEditUserModal(userId) {
+    console.log('Abrindo modal de edição para o usuário:', userId);
+
+    try {
+        // Verificar se o Firebase está disponível
+        if (!window.firebaseDB) {
+            throw new Error('Firebase não está disponível');
+        }
+
+        // Buscar dados do usuário
+        const result = await window.firebaseDB.getUser(userId);
+
+        if (result.success && result.user) {
+            const user = result.user;
+
+            // Preencher o formulário de edição
+            document.getElementById('edit-user-id').value = userId;
+            document.getElementById('edit-user-name').value = user.personalInfo?.firstname || '';
+            document.getElementById('edit-user-lastname').value = user.personalInfo?.lastname || '';
+            document.getElementById('edit-user-email').value = user.personalInfo?.email || user.email || '';
+            document.getElementById('edit-user-username').value = user.personalInfo?.username || '';
+            document.getElementById('edit-user-role').value = user.professionalInfo?.role || 'usuario';
+
+            // Abrir o modal
+            const editUserModal = document.getElementById('edit-user-modal');
+            if (editUserModal) {
+                editUserModal.style.display = 'block';
+            }
+        } else {
+            alert('Erro ao buscar dados do usuário. Tente novamente.');
+        }
+
+    } catch (error) {
+        console.error('Erro ao abrir modal de edição:', error);
+        alert(`Erro: ${error.message}`);
+    }
+}
+
+// Função para confirmar a exclusão de um usuário
+function confirmDeleteUser(userId) {
+    if (confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')) {
+        deleteUser(userId);
+    }
+}
+
+// Função para excluir um usuário
+async function deleteUser(userId) {
+    console.log('Excluindo usuário:', userId);
+
+    try {
+        // Verificar se o Firebase está disponível
+        if (!window.firebaseDB) {
+            throw new Error('Firebase não está disponível');
+        }
+
+        // Excluir usuário
+        const result = await window.firebaseDB.deleteUser(userId);
+
+        if (result.success) {
+            alert('Usuário excluído com sucesso!');
+            // Recarregar a lista de usuários
+            loadUsersList();
+        } else {
+            alert(`Erro ao excluir usuário: ${result.error || 'Erro desconhecido'}`);
+        }
+
+    } catch (error) {
+        console.error('Erro ao excluir usuário:', error);
+        alert(`Erro: ${error.message}`);
+    }
 }

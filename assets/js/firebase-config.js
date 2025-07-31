@@ -438,6 +438,7 @@ const firebaseDB = {
   // Obter todos os usuários
   getAllUsers: async () => {
     try {
+      console.log('Carregando todos os usuários do Firebase...');
       const snapshot = await database.ref('users').once('value');
       const usersData = snapshot.val();
       const users = [];
@@ -445,11 +446,23 @@ const firebaseDB = {
       // Converter objeto em array
       if (usersData) {
         Object.keys(usersData).forEach(key => {
-          users.push({
-            id: key,
+          // Garantir que o ID do usuário esteja correto
+          const userData = {
+            uid: key,
             ...usersData[key]
-          });
+          };
+          
+          // Garantir que as estruturas de dados estejam presentes
+          if (!userData.personalInfo) userData.personalInfo = {};
+          if (!userData.contactInfo) userData.contactInfo = {};
+          if (!userData.addressInfo) userData.addressInfo = {};
+          if (!userData.professionalInfo) userData.professionalInfo = {};
+          
+          users.push(userData);
         });
+        console.log(`${users.length} usuários encontrados`);
+      } else {
+        console.log('Nenhum usuário encontrado no banco de dados');
       }
       
       return { success: true, users };
