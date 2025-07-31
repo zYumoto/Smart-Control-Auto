@@ -249,28 +249,37 @@ class LoginForm {
 
     // Validar formato de e-mail ou nome de usuário
     validateEmail(emailOrUsername) {
+        console.log(`Validando entrada: ${emailOrUsername}`);
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         
         if (!emailOrUsername) {
+            console.log('Campo vazio');
             return { isValid: false, message: 'E-mail ou nome de usuário é obrigatório' };
         }
         
         // Se contiver @, validar como email
         if (emailOrUsername.includes('@')) {
+            console.log('Validando como email');
             if (!emailRegex.test(emailOrUsername)) {
+                console.log('Formato de email inválido');
                 return { isValid: false, message: 'Formato de e-mail inválido' };
             }
+            console.log('Email válido');
         } else {
+            console.log('Validando como nome de usuário');
             // Validar como nome de usuário
             if (emailOrUsername.length < 3) {
+                console.log('Nome de usuário muito curto');
                 return { isValid: false, message: 'Nome de usuário deve ter pelo menos 3 caracteres' };
             }
             
-            // Verificar se contém apenas caracteres alfanuméricos e underscore
-            const usernameRegex = /^[a-zA-Z0-9_]+$/;
+            // Verificar se contém apenas caracteres alfanuméricos, underscore, ponto e hífen
+            const usernameRegex = /^[a-zA-Z0-9_.-]+$/;
             if (!usernameRegex.test(emailOrUsername)) {
-                return { isValid: false, message: 'Nome de usuário pode conter apenas letras, números e underscore' };
+                console.log('Nome de usuário contém caracteres inválidos');
+                return { isValid: false, message: 'Nome de usuário pode conter apenas letras, números, underscore, ponto e hífen' };
             }
+            console.log('Nome de usuário válido');
         }
         
         return { isValid: true, message: '' };
@@ -309,8 +318,8 @@ class LoginForm {
     }
     
     // Verificar credenciais do usuário
-    async checkCredentials(email, password) {
-        console.log(`Tentando login com email: ${email}`);
+    async checkCredentials(emailOrUsername, password) {
+        console.log(`Tentando login com entrada: ${emailOrUsername}`);
         
         // Garantir que os usuários padrão estejam disponíveis
         ensureDefaultUsersInLocalStorage();
@@ -321,7 +330,7 @@ class LoginForm {
         if (window.firebaseAuth) {
             try {
                 console.log('Tentando autenticação via Firebase...');
-                const result = await window.firebaseAuth.loginUser(email, password);
+                const result = await window.firebaseAuth.loginUser(emailOrUsername, password);
                 firebaseSuccess = result.success;
                 
                 if (firebaseSuccess) {
@@ -344,19 +353,39 @@ class LoginForm {
             const storedValidUsers = localStorage.getItem('validUsers');
             if (storedValidUsers) {
                 const validUsers = JSON.parse(storedValidUsers);
+                let matchedUser = null;
                 
-                // Verificar se as credenciais correspondem a um usuário válido
-                const userMatch = validUsers.some(user => user.email === email && user.password === password);
+                // Verificar se a entrada é um email ou nome de usuário
+                if (emailOrUsername.includes('@')) {
+                    // É um email, buscar diretamente
+                    matchedUser = validUsers.find(user => 
+                        user.email === emailOrUsername && user.password === password
+                    );
+                    console.log(`Verificando email ${emailOrUsername} no localStorage:`, matchedUser ? 'encontrado' : 'não encontrado');
+                } else {
+                    // É um nome de usuário, buscar por username nos dados pessoais
+                    console.log(`Buscando por nome de usuário: ${emailOrUsername}`);
+                    
+                    for (const user of validUsers) {
+                        // Verificar se o usuário tem dados pessoais com nome de usuário
+                        if (user.personalInfo && user.personalInfo.username && 
+                            user.personalInfo.username.toLowerCase() === emailOrUsername.toLowerCase() && 
+                            user.password === password) {
+                            matchedUser = user;
+                            console.log('Usuário encontrado pelo nome de usuário:', user.email);
+                            break;
+                        }
+                    }
+                }
                 
-                if (userMatch) {
+                if (matchedUser) {
                     console.log('Login via localStorage bem-sucedido!');
                     
                     // Salvar informações do usuário no localStorage para persistência da sessão
-                    const matchedUser = validUsers.find(user => user.email === email);
                     localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('userEmail', email);
+                    localStorage.setItem('userEmail', matchedUser.email);
                     localStorage.setItem('currentUser', JSON.stringify({
-                        email: email,
+                        email: matchedUser.email,
                         ...matchedUser
                     }));
                     

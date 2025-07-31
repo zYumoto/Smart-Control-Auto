@@ -246,13 +246,132 @@ var ProductManager = /** @class */ (function () {
     ProductManager.prototype.generateId = function () {
         return Date.now().toString(36) + Math.random().toString(36).substring(2);
     };
-    ProductManager.prototype.saveProducts = function () {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.products));
+    ProductManager.prototype.saveProducts = async function () {
+        try {
+            // Verificar se o Firebase está disponível
+            if (!window.firebaseDB) {
+                console.warn('Firebase não disponível, salvando produtos no localStorage');
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.products));
+                return;
+            }
+            
+            // Obter ID do usuário atual
+            let userId = null;
+            
+            if (window.firebaseAuth) {
+                const currentUser = window.firebaseAuth.getCurrentUser();
+                if (currentUser) {
+                    userId = currentUser.uid;
+                }
+            }
+            
+            if (!userId) {
+                // Tentar obter do localStorage como fallback
+                const localUserData = localStorage.getItem('currentUser');
+                if (localUserData) {
+                    try {
+                        const parsedUser = JSON.parse(localUserData);
+                        if (parsedUser && parsedUser.uid) {
+                            userId = parsedUser.uid;
+                        }
+                    } catch (e) {
+                        console.error('Erro ao analisar dados do usuário do localStorage:', e);
+                    }
+                }
+            }
+            
+            if (!userId) {
+                console.warn('ID de usuário não encontrado, salvando produtos no localStorage');
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.products));
+                return;
+            }
+            
+            // Salvar cada produto no Firebase
+            for (const product of this.products) {
+                await window.firebaseDB.saveProduct(userId, product);
+            }
+            
+            console.log('Produtos salvos no Firebase com sucesso');
+            
+            // Manter uma cópia no localStorage como backup
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.products));
+        } catch (error) {
+            console.error('Erro ao salvar produtos:', error);
+            // Fallback para localStorage
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.products));
+        }
     };
-    ProductManager.prototype.loadProducts = function () {
-        var storedProducts = localStorage.getItem(this.STORAGE_KEY);
-        if (storedProducts) {
-            this.products = JSON.parse(storedProducts);
+    
+    ProductManager.prototype.loadProducts = async function () {
+        try {
+            // Verificar se o Firebase está disponível
+            if (!window.firebaseDB) {
+                console.warn('Firebase não disponível, carregando produtos do localStorage');
+                const storedProducts = localStorage.getItem(this.STORAGE_KEY);
+                if (storedProducts) {
+                    this.products = JSON.parse(storedProducts);
+                }
+                return;
+            }
+            
+            // Obter ID do usuário atual
+            let userId = null;
+            
+            if (window.firebaseAuth) {
+                const currentUser = window.firebaseAuth.getCurrentUser();
+                if (currentUser) {
+                    userId = currentUser.uid;
+                }
+            }
+            
+            if (!userId) {
+                // Tentar obter do localStorage como fallback
+                const localUserData = localStorage.getItem('currentUser');
+                if (localUserData) {
+                    try {
+                        const parsedUser = JSON.parse(localUserData);
+                        if (parsedUser && parsedUser.uid) {
+                            userId = parsedUser.uid;
+                        }
+                    } catch (e) {
+                        console.error('Erro ao analisar dados do usuário do localStorage:', e);
+                    }
+                }
+            }
+            
+            if (!userId) {
+                console.warn('ID de usuário não encontrado, carregando produtos do localStorage');
+                const storedProducts = localStorage.getItem(this.STORAGE_KEY);
+                if (storedProducts) {
+                    this.products = JSON.parse(storedProducts);
+                }
+                return;
+            }
+            
+            // Carregar produtos do Firebase
+            const result = await window.firebaseDB.getUserProducts(userId);
+            
+            if (result.success) {
+                this.products = result.products;
+                console.log('Produtos carregados do Firebase com sucesso:', this.products.length);
+                
+                // Atualizar localStorage como backup
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.products));
+            } else {
+                console.error('Erro ao carregar produtos do Firebase:', result.error);
+                // Fallback para localStorage
+                const storedProducts = localStorage.getItem(this.STORAGE_KEY);
+                if (storedProducts) {
+                    this.products = JSON.parse(storedProducts);
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao carregar produtos:', error);
+            // Fallback para localStorage
+            const storedProducts = localStorage.getItem(this.STORAGE_KEY);
+            if (storedProducts) {
+                this.products = JSON.parse(storedProducts);
+            }
         }
     };
     return ProductManager;

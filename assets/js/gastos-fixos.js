@@ -319,13 +319,132 @@ var FixedExpenseManager = /** @class */ (function () {
     FixedExpenseManager.prototype.generateId = function () {
         return Date.now().toString(36) + Math.random().toString(36).substring(2);
     };
-    FixedExpenseManager.prototype.saveExpenses = function () {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.expenses));
+    FixedExpenseManager.prototype.saveExpenses = async function () {
+        try {
+            // Verificar se o Firebase está disponível
+            if (!window.firebaseDB) {
+                console.warn('Firebase não disponível, salvando gastos fixos no localStorage');
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.expenses));
+                return;
+            }
+            
+            // Obter ID do usuário atual
+            let userId = null;
+            
+            if (window.firebaseAuth) {
+                const currentUser = window.firebaseAuth.getCurrentUser();
+                if (currentUser) {
+                    userId = currentUser.uid;
+                }
+            }
+            
+            if (!userId) {
+                // Tentar obter do localStorage como fallback
+                const localUserData = localStorage.getItem('currentUser');
+                if (localUserData) {
+                    try {
+                        const parsedUser = JSON.parse(localUserData);
+                        if (parsedUser && parsedUser.uid) {
+                            userId = parsedUser.uid;
+                        }
+                    } catch (e) {
+                        console.error('Erro ao analisar dados do usuário do localStorage:', e);
+                    }
+                }
+            }
+            
+            if (!userId) {
+                console.warn('ID de usuário não encontrado, salvando gastos fixos no localStorage');
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.expenses));
+                return;
+            }
+            
+            // Salvar cada gasto fixo no Firebase
+            for (const expense of this.expenses) {
+                await window.firebaseDB.saveFixedExpense(userId, expense);
+            }
+            
+            console.log('Gastos fixos salvos no Firebase com sucesso');
+            
+            // Manter uma cópia no localStorage como backup
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.expenses));
+        } catch (error) {
+            console.error('Erro ao salvar gastos fixos:', error);
+            // Fallback para localStorage
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.expenses));
+        }
     };
-    FixedExpenseManager.prototype.loadExpenses = function () {
-        var storedExpenses = localStorage.getItem(this.STORAGE_KEY);
-        if (storedExpenses) {
-            this.expenses = JSON.parse(storedExpenses);
+    
+    FixedExpenseManager.prototype.loadExpenses = async function () {
+        try {
+            // Verificar se o Firebase está disponível
+            if (!window.firebaseDB) {
+                console.warn('Firebase não disponível, carregando gastos fixos do localStorage');
+                const storedExpenses = localStorage.getItem(this.STORAGE_KEY);
+                if (storedExpenses) {
+                    this.expenses = JSON.parse(storedExpenses);
+                }
+                return;
+            }
+            
+            // Obter ID do usuário atual
+            let userId = null;
+            
+            if (window.firebaseAuth) {
+                const currentUser = window.firebaseAuth.getCurrentUser();
+                if (currentUser) {
+                    userId = currentUser.uid;
+                }
+            }
+            
+            if (!userId) {
+                // Tentar obter do localStorage como fallback
+                const localUserData = localStorage.getItem('currentUser');
+                if (localUserData) {
+                    try {
+                        const parsedUser = JSON.parse(localUserData);
+                        if (parsedUser && parsedUser.uid) {
+                            userId = parsedUser.uid;
+                        }
+                    } catch (e) {
+                        console.error('Erro ao analisar dados do usuário do localStorage:', e);
+                    }
+                }
+            }
+            
+            if (!userId) {
+                console.warn('ID de usuário não encontrado, carregando gastos fixos do localStorage');
+                const storedExpenses = localStorage.getItem(this.STORAGE_KEY);
+                if (storedExpenses) {
+                    this.expenses = JSON.parse(storedExpenses);
+                }
+                return;
+            }
+            
+            // Carregar gastos fixos do Firebase
+            const result = await window.firebaseDB.getUserFixedExpenses(userId);
+            
+            if (result.success) {
+                this.expenses = result.expenses;
+                console.log('Gastos fixos carregados do Firebase com sucesso:', this.expenses.length);
+                
+                // Atualizar localStorage como backup
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.expenses));
+            } else {
+                console.error('Erro ao carregar gastos fixos do Firebase:', result.error);
+                // Fallback para localStorage
+                const storedExpenses = localStorage.getItem(this.STORAGE_KEY);
+                if (storedExpenses) {
+                    this.expenses = JSON.parse(storedExpenses);
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao carregar gastos fixos:', error);
+            // Fallback para localStorage
+            const storedExpenses = localStorage.getItem(this.STORAGE_KEY);
+            if (storedExpenses) {
+                this.expenses = JSON.parse(storedExpenses);
+            }
         }
     };
     return FixedExpenseManager;

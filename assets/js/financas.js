@@ -361,20 +361,202 @@ var FinanceManager = /** @class */ (function () {
     FinanceManager.prototype.generateId = function () {
         return Date.now().toString(36) + Math.random().toString(36).substring(2);
     };
-    FinanceManager.prototype.saveTransactions = function () {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.transactions));
-    };
-    FinanceManager.prototype.loadTransactions = function () {
-        var storedTransactions = localStorage.getItem(this.STORAGE_KEY);
-        if (storedTransactions) {
-            this.transactions = JSON.parse(storedTransactions);
+    FinanceManager.prototype.saveTransactions = async function () {
+        try {
+            // Verificar se o Firebase está disponível
+            if (!window.firebaseDB) {
+                console.warn('Firebase não disponível, salvando transações no localStorage');
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.transactions));
+                return;
+            }
+            
+            // Obter ID do usuário atual
+            let userId = null;
+            
+            if (window.firebaseAuth) {
+                const currentUser = window.firebaseAuth.getCurrentUser();
+                if (currentUser) {
+                    userId = currentUser.uid;
+                }
+            }
+            
+            if (!userId) {
+                // Tentar obter do localStorage como fallback
+                const localUserData = localStorage.getItem('currentUser');
+                if (localUserData) {
+                    try {
+                        const parsedUser = JSON.parse(localUserData);
+                        if (parsedUser && parsedUser.uid) {
+                            userId = parsedUser.uid;
+                        }
+                    } catch (e) {
+                        console.error('Erro ao analisar dados do usuário do localStorage:', e);
+                    }
+                }
+            }
+            
+            if (!userId) {
+                console.warn('ID de usuário não encontrado, salvando transações no localStorage');
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.transactions));
+                return;
+            }
+            
+            // Salvar cada transação no Firebase
+            for (const transaction of this.transactions) {
+                await window.firebaseDB.saveTransaction(userId, transaction);
+            }
+            
+            console.log('Transações salvas no Firebase com sucesso');
+            
+            // Manter uma cópia no localStorage como backup
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.transactions));
+        } catch (error) {
+            console.error('Erro ao salvar transações:', error);
+            // Fallback para localStorage
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.transactions));
         }
     };
     
-    FinanceManager.prototype.loadProducts = function () {
-        var storedProducts = localStorage.getItem(this.PRODUCTS_STORAGE_KEY);
-        if (storedProducts) {
-            this.products = JSON.parse(storedProducts);
+    FinanceManager.prototype.loadTransactions = async function () {
+        try {
+            // Verificar se o Firebase está disponível
+            if (!window.firebaseDB) {
+                console.warn('Firebase não disponível, carregando transações do localStorage');
+                const storedTransactions = localStorage.getItem(this.STORAGE_KEY);
+                if (storedTransactions) {
+                    this.transactions = JSON.parse(storedTransactions);
+                }
+                return;
+            }
+            
+            // Obter ID do usuário atual
+            let userId = null;
+            
+            if (window.firebaseAuth) {
+                const currentUser = window.firebaseAuth.getCurrentUser();
+                if (currentUser) {
+                    userId = currentUser.uid;
+                }
+            }
+            
+            if (!userId) {
+                // Tentar obter do localStorage como fallback
+                const localUserData = localStorage.getItem('currentUser');
+                if (localUserData) {
+                    try {
+                        const parsedUser = JSON.parse(localUserData);
+                        if (parsedUser && parsedUser.uid) {
+                            userId = parsedUser.uid;
+                        }
+                    } catch (e) {
+                        console.error('Erro ao analisar dados do usuário do localStorage:', e);
+                    }
+                }
+            }
+            
+            if (!userId) {
+                console.warn('ID de usuário não encontrado, carregando transações do localStorage');
+                const storedTransactions = localStorage.getItem(this.STORAGE_KEY);
+                if (storedTransactions) {
+                    this.transactions = JSON.parse(storedTransactions);
+                }
+                return;
+            }
+            
+            // Carregar transações do Firebase
+            const result = await window.firebaseDB.getUserTransactions(userId);
+            
+            if (result.success) {
+                this.transactions = result.transactions;
+                console.log('Transações carregadas do Firebase com sucesso:', this.transactions.length);
+                
+                // Atualizar localStorage como backup
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.transactions));
+            } else {
+                console.error('Erro ao carregar transações do Firebase:', result.error);
+                // Fallback para localStorage
+                const storedTransactions = localStorage.getItem(this.STORAGE_KEY);
+                if (storedTransactions) {
+                    this.transactions = JSON.parse(storedTransactions);
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao carregar transações:', error);
+            // Fallback para localStorage
+            const storedTransactions = localStorage.getItem(this.STORAGE_KEY);
+            if (storedTransactions) {
+                this.transactions = JSON.parse(storedTransactions);
+            }
+        }
+    };
+    
+    FinanceManager.prototype.loadProducts = async function () {
+        try {
+            // Verificar se o Firebase está disponível
+            if (!window.firebaseDB) {
+                console.warn('Firebase não disponível, carregando produtos do localStorage');
+                const storedProducts = localStorage.getItem(this.PRODUCTS_STORAGE_KEY);
+                if (storedProducts) {
+                    this.products = JSON.parse(storedProducts);
+                }
+                return;
+            }
+            
+            // Obter ID do usuário atual
+            let userId = null;
+            
+            if (window.firebaseAuth) {
+                const currentUser = window.firebaseAuth.getCurrentUser();
+                if (currentUser) {
+                    userId = currentUser.uid;
+                }
+            }
+            
+            if (!userId) {
+                // Tentar obter do localStorage como fallback
+                const localUserData = localStorage.getItem('currentUser');
+                if (localUserData) {
+                    try {
+                        const parsedUser = JSON.parse(localUserData);
+                        if (parsedUser && parsedUser.uid) {
+                            userId = parsedUser.uid;
+                        }
+                    } catch (e) {
+                        console.error('Erro ao analisar dados do usuário do localStorage:', e);
+                    }
+                }
+            }
+            
+            if (!userId) {
+                console.warn('ID de usuário não encontrado, carregando produtos do localStorage');
+                const storedProducts = localStorage.getItem(this.PRODUCTS_STORAGE_KEY);
+                if (storedProducts) {
+                    this.products = JSON.parse(storedProducts);
+                }
+                return;
+            }
+            
+            // Carregar produtos do Firebase
+            const result = await window.firebaseDB.getUserProducts(userId);
+            
+            if (result.success) {
+                this.products = result.products;
+                console.log('Produtos carregados do Firebase com sucesso:', this.products.length);
+            } else {
+                console.error('Erro ao carregar produtos do Firebase:', result.error);
+                // Fallback para localStorage
+                const storedProducts = localStorage.getItem(this.PRODUCTS_STORAGE_KEY);
+                if (storedProducts) {
+                    this.products = JSON.parse(storedProducts);
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao carregar produtos:', error);
+            // Fallback para localStorage
+            const storedProducts = localStorage.getItem(this.PRODUCTS_STORAGE_KEY);
+            if (storedProducts) {
+                this.products = JSON.parse(storedProducts);
+            }
         }
     };
     return FinanceManager;

@@ -88,6 +88,16 @@ const firebaseAuth = {
       const snapshot = await database.ref('users/' + user.uid).once('value');
       const userData = snapshot.val();
       
+      // Verificar e garantir que a foto de perfil seja carregada corretamente
+      if (userData && userData.profilePhoto && userData.profilePhoto !== 'undefined' && userData.profilePhoto !== 'null') {
+        console.log('Foto de perfil encontrada no Firebase, tamanho:', Math.round(userData.profilePhoto.length / 1024), 'KB');
+      } else {
+        console.log('Nenhuma foto de perfil válida encontrada no Firebase');
+        
+        // Definir foto padrão se não houver foto válida
+        userData.profilePhoto = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCBmaWxsPSIjYWM1OGFhIiB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIvPjxjaXJjbGUgZmlsbD0iI2ZmZiIgY3g9IjEyOCIgY3k9IjkwIiByPSI0MCIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0yMTQsMjE0SDQyYzAtNDYsNDAtNzAsODYtNzBzODYsMjQsODYsNzBaIi8+PC9zdmc+';        
+      }
+      
       // Salvar informações do usuário no localStorage para persistência da sessão
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userEmail', email);
@@ -159,6 +169,272 @@ const firebaseAuth = {
 
 // Funções de banco de dados
 const firebaseDB = {
+  // FUNÇÕES PARA PRODUTOS
+  
+  // Salvar um produto para um usuário específico
+  saveProduct: async (userId, product) => {
+    try {
+      if (!userId) {
+        console.error('ID de usuário não fornecido para saveProduct');
+        return { success: false, error: 'ID de usuário não fornecido' };
+      }
+      
+      // Se o produto não tiver ID, gerar um novo
+      if (!product.id) {
+        product.id = Date.now().toString(36) + Math.random().toString(36).substring(2);
+      }
+      
+      // Salvar o produto no nó do usuário
+      await database.ref(`users/${userId}/produtos/${product.id}`).set({
+        ...product,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      
+      return { success: true, productId: product.id };
+    } catch (error) {
+      console.error('Erro ao salvar produto:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // Obter todos os produtos de um usuário
+  getUserProducts: async (userId) => {
+    try {
+      if (!userId) {
+        console.error('ID de usuário não fornecido para getUserProducts');
+        return { success: false, error: 'ID de usuário não fornecido' };
+      }
+      
+      const snapshot = await database.ref(`users/${userId}/produtos`).once('value');
+      const products = snapshot.val() || {};
+      
+      // Converter objeto em array
+      const productsArray = Object.keys(products).map(key => ({
+        id: key,
+        ...products[key]
+      }));
+      
+      return { success: true, products: productsArray };
+    } catch (error) {
+      console.error('Erro ao obter produtos do usuário:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // Atualizar um produto específico
+  updateProduct: async (userId, productId, productData) => {
+    try {
+      if (!userId || !productId) {
+        console.error('ID de usuário ou produto não fornecido para updateProduct');
+        return { success: false, error: 'ID de usuário ou produto não fornecido' };
+      }
+      
+      await database.ref(`users/${userId}/produtos/${productId}`).update({
+        ...productData,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao atualizar produto:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // Excluir um produto
+  deleteProduct: async (userId, productId) => {
+    try {
+      if (!userId || !productId) {
+        console.error('ID de usuário ou produto não fornecido para deleteProduct');
+        return { success: false, error: 'ID de usuário ou produto não fornecido' };
+      }
+      
+      await database.ref(`users/${userId}/produtos/${productId}`).remove();
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao excluir produto:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // FUNÇÕES PARA TRANSAÇÕES
+  
+  // Salvar uma transação para um usuário específico
+  saveTransaction: async (userId, transaction) => {
+    try {
+      if (!userId) {
+        console.error('ID de usuário não fornecido para saveTransaction');
+        return { success: false, error: 'ID de usuário não fornecido' };
+      }
+      
+      // Se a transação não tiver ID, gerar um novo
+      if (!transaction.id) {
+        transaction.id = Date.now().toString(36) + Math.random().toString(36).substring(2);
+      }
+      
+      // Salvar a transação no nó do usuário
+      await database.ref(`users/${userId}/transacoes/${transaction.id}`).set({
+        ...transaction,
+        createdAt: transaction.createdAt || firebase.database.ServerValue.TIMESTAMP
+      });
+      
+      return { success: true, transactionId: transaction.id };
+    } catch (error) {
+      console.error('Erro ao salvar transação:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // Obter todas as transações de um usuário
+  getUserTransactions: async (userId) => {
+    try {
+      if (!userId) {
+        console.error('ID de usuário não fornecido para getUserTransactions');
+        return { success: false, error: 'ID de usuário não fornecido' };
+      }
+      
+      const snapshot = await database.ref(`users/${userId}/transacoes`).once('value');
+      const transactions = snapshot.val() || {};
+      
+      // Converter objeto em array
+      const transactionsArray = Object.keys(transactions).map(key => ({
+        id: key,
+        ...transactions[key]
+      }));
+      
+      return { success: true, transactions: transactionsArray };
+    } catch (error) {
+      console.error('Erro ao obter transações do usuário:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // Atualizar uma transação específica
+  updateTransaction: async (userId, transactionId, transactionData) => {
+    try {
+      if (!userId || !transactionId) {
+        console.error('ID de usuário ou transação não fornecido para updateTransaction');
+        return { success: false, error: 'ID de usuário ou transação não fornecido' };
+      }
+      
+      await database.ref(`users/${userId}/transacoes/${transactionId}`).update({
+        ...transactionData,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao atualizar transação:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // Excluir uma transação
+  deleteTransaction: async (userId, transactionId) => {
+    try {
+      if (!userId || !transactionId) {
+        console.error('ID de usuário ou transação não fornecido para deleteTransaction');
+        return { success: false, error: 'ID de usuário ou transação não fornecido' };
+      }
+      
+      await database.ref(`users/${userId}/transacoes/${transactionId}`).remove();
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao excluir transação:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // FUNÇÕES PARA GASTOS FIXOS
+  
+  // Salvar um gasto fixo para um usuário específico
+  saveFixedExpense: async (userId, expense) => {
+    try {
+      if (!userId) {
+        console.error('ID de usuário não fornecido para saveFixedExpense');
+        return { success: false, error: 'ID de usuário não fornecido' };
+      }
+      
+      // Se o gasto não tiver ID, gerar um novo
+      if (!expense.id) {
+        expense.id = Date.now().toString(36) + Math.random().toString(36).substring(2);
+      }
+      
+      // Salvar o gasto fixo no nó do usuário
+      await database.ref(`users/${userId}/gastosFixos/${expense.id}`).set({
+        ...expense,
+        createdAt: expense.createdAt || firebase.database.ServerValue.TIMESTAMP
+      });
+      
+      return { success: true, expenseId: expense.id };
+    } catch (error) {
+      console.error('Erro ao salvar gasto fixo:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // Obter todos os gastos fixos de um usuário
+  getUserFixedExpenses: async (userId) => {
+    try {
+      if (!userId) {
+        console.error('ID de usuário não fornecido para getUserFixedExpenses');
+        return { success: false, error: 'ID de usuário não fornecido' };
+      }
+      
+      const snapshot = await database.ref(`users/${userId}/gastosFixos`).once('value');
+      const expenses = snapshot.val() || {};
+      
+      // Converter objeto em array
+      const expensesArray = Object.keys(expenses).map(key => ({
+        id: key,
+        ...expenses[key]
+      }));
+      
+      return { success: true, expenses: expensesArray };
+    } catch (error) {
+      console.error('Erro ao obter gastos fixos do usuário:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // Atualizar um gasto fixo específico
+  updateFixedExpense: async (userId, expenseId, expenseData) => {
+    try {
+      if (!userId || !expenseId) {
+        console.error('ID de usuário ou gasto fixo não fornecido para updateFixedExpense');
+        return { success: false, error: 'ID de usuário ou gasto fixo não fornecido' };
+      }
+      
+      await database.ref(`users/${userId}/gastosFixos/${expenseId}`).update({
+        ...expenseData,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao atualizar gasto fixo:', error);
+      return { success: false, error: error.message };
+    }
+  },
+  
+  // Excluir um gasto fixo
+  deleteFixedExpense: async (userId, expenseId) => {
+    try {
+      if (!userId || !expenseId) {
+        console.error('ID de usuário ou gasto fixo não fornecido para deleteFixedExpense');
+        return { success: false, error: 'ID de usuário ou gasto fixo não fornecido' };
+      }
+      
+      await database.ref(`users/${userId}/gastosFixos/${expenseId}`).remove();
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao excluir gasto fixo:', error);
+      return { success: false, error: error.message };
+    }
+  },
   // Obter todos os usuários
   getAllUsers: async () => {
     try {
@@ -203,14 +479,143 @@ const firebaseDB = {
   // Atualizar dados de um usuário
   updateUser: async (userId, userData) => {
     try {
+      console.log('Iniciando atualização do usuário com ID:', userId);
+      console.log('Dados recebidos para atualização:', userData);
+      
+      // Verificar se o ID do usuário é válido
+      if (!userId || userId === 'undefined' || userId === 'null') {
+        console.error('ID do usuário inválido:', userId);
+        return { success: false, error: "ID de usuário inválido" };
+      }
+      
+      // Verificar se o usuário existe
+      const snapshot = await database.ref('users/' + userId).once('value');
+      if (!snapshot.exists()) {
+        console.error('Usuário não encontrado no banco de dados:', userId);
+        return { success: false, error: "Usuário não encontrado" };
+      }
+      
+      // Obter dados atuais do usuário
+      const existingData = snapshot.val();
+      console.log('Dados atuais do usuário:', existingData);
+      
       // Remover campos que não devem ser atualizados
       const { id, createdAt, ...updateData } = userData;
       
-      // Atualizar no Realtime Database
-      await database.ref('users/' + userId).update({
+      // Verificar se há foto de perfil para salvar
+      if (updateData.profilePhoto) {
+        console.log('Salvando foto de perfil para o usuário:', userId);
+        // Verificar se a foto é válida
+        if (updateData.profilePhoto === 'undefined' || updateData.profilePhoto === 'null' || !updateData.profilePhoto) {
+          console.warn('Foto de perfil inválida detectada, usando imagem padrão');
+          // Usar imagem padrão se a foto for inválida
+          updateData.profilePhoto = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCBmaWxsPSIjYWM1OGFhIiB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIvPjxjaXJjbGUgZmlsbD0iI2ZmZiIgY3g9IjEyOCIgY3k9IjkwIiByPSI0MCIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0yMTQsMjE0SDQyYzAtNDYsNDAtNzAsODYtNzBzODYsMjQsODYsNzBaIi8+PC9zdmc+';
+        } else {
+          console.log('Foto de perfil válida detectada, tamanho aproximado:', Math.round(updateData.profilePhoto.length / 1024), 'KB');
+          
+          // Verificar se a foto é diferente da existente
+          if (existingData.profilePhoto !== updateData.profilePhoto) {
+            console.log('Foto de perfil foi alterada, atualizando...');
+          } else {
+            console.log('Foto de perfil não foi alterada');
+          }
+        }
+      } else {
+        console.warn('Nenhuma foto de perfil fornecida para o usuário:', userId);
+        
+        // Manter a foto existente se houver
+        if (existingData.profilePhoto) {
+          console.log('Mantendo foto de perfil existente');
+          updateData.profilePhoto = existingData.profilePhoto;
+        }
+      }
+      
+      // Preparar dados para atualização, garantindo que as estruturas existam
+      const updateObject = {
         ...updateData,
         updatedAt: firebase.database.ServerValue.TIMESTAMP
-      });
+      };
+      
+      // Garantir que as estruturas de dados sejam preservadas
+      if (!updateObject.personalInfo && existingData.personalInfo) {
+        updateObject.personalInfo = existingData.personalInfo;
+      }
+      
+      if (!updateObject.addressInfo && existingData.addressInfo) {
+        updateObject.addressInfo = existingData.addressInfo;
+      }
+      
+      if (!updateObject.profilePhoto && existingData.profilePhoto) {
+        updateObject.profilePhoto = existingData.profilePhoto;
+      }
+      
+      console.log('Dados preparados para atualização:', updateObject);
+      
+      // Atualizar no Realtime Database
+      console.log('Enviando atualização para o Firebase...');
+      await database.ref('users/' + userId).update(updateObject);
+      console.log('Atualização no Firebase concluída com sucesso');
+      
+      // Verificar se a atualização foi bem-sucedida
+      const verifySnapshot = await database.ref('users/' + userId).once('value');
+      const verifiedData = verifySnapshot.val();
+      
+      if (verifiedData) {
+        console.log('Verificação após atualização:');
+        
+        // Verificar se a foto foi salva corretamente
+        if (updateObject.profilePhoto && verifiedData.profilePhoto) {
+          const photoSaved = updateObject.profilePhoto === verifiedData.profilePhoto;
+          console.log('Foto de perfil salva corretamente?', photoSaved ? 'Sim' : 'Não');
+          
+          if (!photoSaved) {
+            console.warn('A foto de perfil não foi salva corretamente. Tentando novamente...');
+            // Tentar salvar apenas a foto novamente
+            await database.ref('users/' + userId + '/profilePhoto').set(updateObject.profilePhoto);
+            console.log('Segunda tentativa de salvar a foto concluída');
+          }
+        }
+      } else {
+        console.error('Falha ao verificar dados após atualização');
+      }
+      
+      // Atualizar dados no localStorage também para manter consistência
+      const currentUserData = localStorage.getItem('currentUser');
+      if (currentUserData) {
+        try {
+          const currentUser = JSON.parse(currentUserData);
+          if (currentUser.uid === userId) {
+            // Mesclar dados existentes com atualizações
+            const updatedUser = { ...currentUser };
+            
+            // Atualizar dados pessoais
+            if (updateObject.personalInfo) {
+              updatedUser.personalInfo = {
+                ...(updatedUser.personalInfo || {}),
+                ...updateObject.personalInfo
+              };
+            }
+            
+            // Atualizar dados de endereço
+            if (updateObject.addressInfo) {
+              updatedUser.addressInfo = {
+                ...(updatedUser.addressInfo || {}),
+                ...updateObject.addressInfo
+              };
+            }
+            
+            // Atualizar foto de perfil
+            if (updateObject.profilePhoto) {
+              updatedUser.profilePhoto = updateObject.profilePhoto;
+            }
+            
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            console.log('Dados do usuário atualizados no localStorage');
+          }
+        } catch (e) {
+          console.error('Erro ao atualizar dados no localStorage:', e);
+        }
+      }
       
       return { success: true };
     } catch (error) {

@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let isAuthenticated = false;
         let userEmail = null;
         let userId = null;
+        let userProfilePhoto = null; // Armazenar a foto de perfil do usuário
         
         if (window.firebaseAuth) {
             try {
@@ -61,10 +62,96 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isAuthenticated && userEmail) {
             console.log('Autenticação confirmada, configurando UI...');
             
-            // Exibir o email do usuário
+            // Buscar dados do usuário para exibir o nome em vez do email
+            let userName = userEmail; // Valor padrão caso não encontre o nome
+            
+            // Tentar obter o nome do usuário do Firebase ou localStorage
+            if (userId) {
+                if (window.firebaseDB) {
+                    try {
+                        const result = await window.firebaseDB.getUser(userId);
+                        if (result.success && result.user) {
+                            // Verificar se temos o nome completo do usuário
+                            if (result.user.personalInfo) {
+                                if (result.user.personalInfo.firstname && result.user.personalInfo.lastname) {
+                                    userName = `${result.user.personalInfo.firstname} ${result.user.personalInfo.lastname}`;
+                                } else if (result.user.personalInfo.username) {
+                                    userName = result.user.personalInfo.username;
+                                } else if (result.user.personalInfo.fullname) {
+                                    userName = result.user.personalInfo.fullname;
+                                }
+                            } else if (result.user.fullname) {
+                                userName = result.user.fullname;
+                            } else if (result.user.displayName) {
+                                userName = result.user.displayName;
+                            }
+                            
+                            // Verificar se há foto de perfil
+                            if (result.user.profilePhoto && result.user.profilePhoto !== 'undefined') {
+                                userProfilePhoto = result.user.profilePhoto;
+                                console.log('Foto de perfil encontrada no Firebase:', userProfilePhoto.substring(0, 30) + '...');
+                            } else {
+                                console.log('Nenhuma foto de perfil encontrada no Firebase para o usuário');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Erro ao buscar dados do usuário:', error);
+                    }
+                } else {
+                    // Tentar obter do localStorage
+                    try {
+                        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                        if (currentUser) {
+                            if (currentUser.personalInfo) {
+                                if (currentUser.personalInfo.firstname && currentUser.personalInfo.lastname) {
+                                    userName = `${currentUser.personalInfo.firstname} ${currentUser.personalInfo.lastname}`;
+                                } else if (currentUser.personalInfo.username) {
+                                    userName = currentUser.personalInfo.username;
+                                } else if (currentUser.personalInfo.fullname) {
+                                    userName = currentUser.personalInfo.fullname;
+                                }
+                            } else if (currentUser.fullname) {
+                                userName = currentUser.fullname;
+                            } else if (currentUser.displayName) {
+                                userName = currentUser.displayName;
+                            }
+                            
+                            // Verificar se há foto de perfil no localStorage
+                            if (currentUser.profilePhoto && currentUser.profilePhoto !== 'undefined') {
+                                userProfilePhoto = currentUser.profilePhoto;
+                                console.log('Foto de perfil encontrada no localStorage:', userProfilePhoto.substring(0, 30) + '...');
+                            } else {
+                                console.log('Nenhuma foto de perfil encontrada no localStorage para o usuário');
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Erro ao analisar dados do usuário do localStorage:', e);
+                    }
+                }
+            }
+            
+            // Exibir o nome do usuário
             const userEmailElement = document.getElementById('user-email');
             if (userEmailElement) {
-                userEmailElement.textContent = userEmail;
+                userEmailElement.textContent = userName;
+            }
+            
+            // Exibir a foto de perfil se disponível
+            if (userProfilePhoto) {
+                // Verificar se existe o elemento de foto no header (pode ser adicionado futuramente)
+                const headerProfilePhoto = document.getElementById('header-profile-photo');
+                if (headerProfilePhoto) {
+                    headerProfilePhoto.src = userProfilePhoto;
+                }
+                
+                // Atualizar a foto no modal de perfil
+                const userPhoto = document.getElementById('user-photo');
+                if (userPhoto) {
+                    console.log('Atualizando foto de perfil no modal');
+                    userPhoto.src = userProfilePhoto;
+                }
+            } else {
+                console.log('Nenhuma foto de perfil disponível para exibir');
             }
             
             // Verificar o papel do usuário

@@ -10,11 +10,13 @@ class SignupForm {
         
         // Elementos de Endereço
         this.cepInput = document.getElementById('cep');
-        this.searchCepBtn = document.getElementById('search-cep-btn');
+        this.searchCepBtn = document.getElementById('search-cep'); // Corrigido para corresponder ao ID no HTML
         this.streetInput = document.getElementById('street');
         this.numberInput = document.getElementById('number');
         this.neighborhoodInput = document.getElementById('neighborhood');
         this.complementInput = document.getElementById('complement');
+        this.stateInput = document.getElementById('state');
+        this.cityInput = document.getElementById('city');
         
         // Elementos Profissionais e Senha
         this.roleSelect = document.getElementById('role');
@@ -425,7 +427,7 @@ class SignupForm {
         try {
             // Atualizar status do botão
             this.searchCepBtn.disabled = true;
-            this.searchCepBtn.textContent = 'Buscando...';
+            this.searchCepBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             
             // Fazer requisição para a API ViaCEP
             const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
@@ -438,9 +440,13 @@ class SignupForm {
                     message: 'CEP não encontrado'
                 });
             } else {
+                console.log('Dados do CEP:', data);
+                
                 // Preencher os campos com os dados retornados
                 this.streetInput.value = data.logradouro || '';
                 this.neighborhoodInput.value = data.bairro || '';
+                this.cityInput.value = data.localidade || '';
+                this.stateInput.value = data.uf || '';
                 
                 // Validar os campos preenchidos
                 if (data.logradouro) {
@@ -452,6 +458,20 @@ class SignupForm {
                 
                 if (data.bairro) {
                     this.updateFieldStatus(this.neighborhoodInput, this.neighborhoodError, {
+                        isValid: true,
+                        message: ''
+                    });
+                }
+                
+                if (data.localidade) {
+                    this.updateFieldStatus(this.cityInput, document.getElementById('city-error'), {
+                        isValid: true,
+                        message: ''
+                    });
+                }
+                
+                if (data.uf) {
+                    this.updateFieldStatus(this.stateInput, document.getElementById('state-error'), {
                         isValid: true,
                         message: ''
                     });
@@ -474,17 +494,8 @@ class SignupForm {
         } finally {
             // Restaurar estado do botão
             this.searchCepBtn.disabled = false;
-            this.searchCepBtn.textContent = 'Buscar';
+            this.searchCepBtn.innerHTML = '<i class="fas fa-search"></i>';
         }
-    }
-    
-    // Validar campo obrigatório genérico
-    validateRequired(value, fieldName) {
-        if (!value.trim()) {
-            return { isValid: false, message: `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} é obrigatório` };
-        }
-        
-        return { isValid: true, message: '' };
     }
 
     // Validar senha

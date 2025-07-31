@@ -11,6 +11,7 @@
     <header class="header-simple">
         <h1>Sistema Financeiro</h1>
         <div class="auth-buttons">
+            <a href="#" id="profile-btn" class="auth-button"><i class="fas fa-user-circle"></i> Perfil</a>
             <a href="index.html" class="auth-button"><i class="fas fa-sign-in-alt"></i> Login</a>
             <a href="#" id="logout-btn" class="auth-button"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
@@ -56,6 +57,107 @@
         </nav>
     </main>
 
+    <!-- Modal de Perfil do Usuário -->
+    <div id="profile-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Perfil do Usuário</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="profile-container">
+                    <div class="profile-photo-container">
+                        <div class="profile-photo" id="profile-photo">
+                            <img id="user-photo" src="assets/images/default-profile.png" alt="Foto de perfil">
+                        </div>
+                        <div class="photo-upload">
+                            <label for="photo-input" class="upload-btn">Alterar foto</label>
+                            <input type="file" id="photo-input" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <div class="profile-info">
+                        <h3 id="profile-name">Nome do Usuário</h3>
+                        <p id="profile-email">email@exemplo.com</p>
+                        <p id="profile-role">Cargo: <span>Usuário</span></p>
+                    </div>
+                </div>
+                
+                <div class="profile-tabs">
+                    <button class="tab-btn active" data-tab="personal-info">Informações Pessoais</button>
+                    <button class="tab-btn" data-tab="address-info">Endereço</button>
+                    <button class="tab-btn" data-tab="security">Segurança</button>
+                </div>
+                
+                <div class="tab-content" id="personal-info">
+                    <div class="form-group">
+                        <label for="profile-firstname">Nome</label>
+                        <input type="text" id="profile-firstname" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-lastname">Sobrenome</label>
+                        <input type="text" id="profile-lastname" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-username">Nome de usuário</label>
+                        <input type="text" id="profile-username" class="form-input" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-phone">Telefone</label>
+                        <input type="text" id="profile-phone" class="form-input">
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="address-info" style="display: none;">
+                    <div class="form-group">
+                        <label for="profile-cep">CEP</label>
+                        <div class="input-with-button">
+                            <input type="text" id="profile-cep" class="form-input">
+                            <button type="button" id="search-cep-btn" class="btn secondary-btn"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-street">Rua</label>
+                        <input type="text" id="profile-street" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-number">Número</label>
+                        <input type="text" id="profile-number" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-complement">Complemento</label>
+                        <input type="text" id="profile-complement" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-neighborhood">Bairro</label>
+                        <input type="text" id="profile-neighborhood" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-city">Cidade</label>
+                        <input type="text" id="profile-city" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-state">Estado</label>
+                        <input type="text" id="profile-state" class="form-input">
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="security" style="display: none;">
+                    <div class="security-options">
+                        <button id="change-password-btn" class="btn primary-btn">
+                            <i class="fas fa-key"></i> Alterar Senha
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button id="save-profile-btn" class="btn primary-btn">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="assets/js/menu.js"></script>
+    <script src="assets/js/profile.js"></script>
 </body>
 </html>
