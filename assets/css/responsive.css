@@ -1,0 +1,77 @@
+/* Estilos responsivos para o sistema */
+
+/* Regras gerais para dispositivos móveis */
+@media screen and (max-width: 768px) {
+    /* Header */
+    .header-simple {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .auth-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Menu em grade */
+    .grid-menu {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+        margin: 1rem auto;
+    }
+    
+    /* Modais */
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        max-height: 90vh;
+    }
+    
+    /* Tabela de usuários */
+    .users-table {
+        font-size: 0.9rem;
+    }
+    
+    .users-table th,
+    .users-table td {
+        padding: 8px;
+    }
+    
+    /* Tornar a tabela responsiva */
+    .users-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    /* Ajustes para telas muito pequenas */
+    @media screen and (max-width: 480px) {
+        .users-table th,
+        .users-table td {
+            padding: 6px;
+            font-size: 0.8rem;
+        }
+        
+        .action-btn {
+            padding: 3px;
+        }
+        
+        /* Ocultar texto dos botões de ação em telas muito pequenas */
+        .action-btn span {
+            display: none;
+        }
+        
+        /* Ajustar tamanho dos ícones */
+        .action-btn i {
+            font-size: 1.2rem;
+        }
+    }
+}
+
+/* Ajustes específicos para tablets */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+    .grid-menu {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
