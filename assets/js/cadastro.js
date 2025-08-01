@@ -10,7 +10,7 @@ class SignupForm {
         
         // Elementos de Endereço
         this.cepInput = document.getElementById('cep');
-        this.searchCepBtn = document.getElementById('search-cep'); // Corrigido para corresponder ao ID no HTML
+        this.searchCepBtn = document.getElementById('search-cep-btn'); // Corrigido para corresponder ao ID no HTML
         this.streetInput = document.getElementById('street');
         this.numberInput = document.getElementById('number');
         this.neighborhoodInput = document.getElementById('neighborhood');
@@ -54,121 +54,183 @@ class SignupForm {
     }
 
     initEvents() {
-        // Validação em tempo real para o nome
-        this.firstnameInput.addEventListener('input', () => {
-            const result = this.validateName(this.firstnameInput.value, 'nome');
-            this.updateFieldStatus(this.firstnameInput, this.firstnameError, result);
-            this.updateSubmitButtonState();
-        });
-
-        // Validação em tempo real para o sobrenome
-        this.lastnameInput.addEventListener('input', () => {
-            const result = this.validateName(this.lastnameInput.value, 'sobrenome');
-            this.updateFieldStatus(this.lastnameInput, this.lastnameError, result);
-            this.updateSubmitButtonState();
-        });
-
-        // Validação em tempo real para o e-mail
-        this.emailInput.addEventListener('input', () => {
-            this.validateEmailAsync(this.emailInput.value).then(result => {
-                this.updateFieldStatus(this.emailInput, this.emailError, result);
-                this.updateSubmitButtonState();
-            });
-        });
-
-        // Validação em tempo real para o nome de usuário
-        this.usernameInput.addEventListener('input', () => {
-            this.validateUsernameAsync(this.usernameInput.value).then(result => {
-                this.updateFieldStatus(this.usernameInput, this.usernameError, result);
-                this.updateSubmitButtonState();
-            });
-        });
-
-        // Validação em tempo real para o telefone
-        this.phoneInput.addEventListener('input', () => {
-            // Formatar o telefone enquanto digita
-            this.phoneInput.value = this.formatPhone(this.phoneInput.value);
-            const result = this.validatePhone(this.phoneInput.value);
-            this.updateFieldStatus(this.phoneInput, this.phoneError, result);
-            this.updateSubmitButtonState();
-        });
-
-        // Validação e formatação do CEP
-        this.cepInput.addEventListener('input', () => {
-            // Formatar o CEP enquanto digita
-            this.cepInput.value = this.formatCEP(this.cepInput.value);
-            const result = this.validateCEP(this.cepInput.value);
-            this.updateFieldStatus(this.cepInput, this.cepError, result);
-            this.updateSubmitButtonState();
-        });
-
-        // Botão de busca de CEP
-        this.searchCepBtn.addEventListener('click', () => {
-            const cep = this.cepInput.value.replace(/\D/g, '');
-            if (cep.length === 8) {
-                this.searchAddressByCEP(cep);
-            } else {
-                this.updateFieldStatus(this.cepInput, this.cepError, {
-                    isValid: false,
-                    message: 'CEP inválido. Digite um CEP válido com 8 dígitos.'
+        try {
+            console.log('Inicializando eventos do formulário de cadastro');
+            
+            // Validação em tempo real para o nome
+            if (this.firstnameInput) {
+                this.firstnameInput.addEventListener('input', () => {
+                    const result = this.validateName(this.firstnameInput.value, 'nome');
+                    this.updateFieldStatus(this.firstnameInput, this.firstnameError, result);
+                    this.updateSubmitButtonState();
                 });
+            } else {
+                console.warn('Elemento firstnameInput não encontrado');
             }
-        });
 
-        // Validação para o campo de rua
-        this.streetInput.addEventListener('input', () => {
-            const result = this.validateRequired(this.streetInput.value, 'rua');
-            this.updateFieldStatus(this.streetInput, this.streetError, result);
-            this.updateSubmitButtonState();
-        });
-
-        // Validação para o campo de número
-        this.numberInput.addEventListener('input', () => {
-            const result = this.validateRequired(this.numberInput.value, 'número');
-            this.updateFieldStatus(this.numberInput, this.numberError, result);
-            this.updateSubmitButtonState();
-        });
-
-        // Validação para o campo de bairro
-        this.neighborhoodInput.addEventListener('input', () => {
-            const result = this.validateRequired(this.neighborhoodInput.value, 'bairro');
-            this.updateFieldStatus(this.neighborhoodInput, this.neighborhoodError, result);
-            this.updateSubmitButtonState();
-        });
-
-        // Validação para o campo de cargo
-        this.roleSelect.addEventListener('change', () => {
-            const result = this.validateRole(this.roleSelect.value);
-            this.updateFieldStatus(this.roleSelect, this.roleError, result);
-            this.updateSubmitButtonState();
-        });
-
-        // Validação em tempo real para a senha
-        this.passwordInput.addEventListener('input', () => {
-            const result = this.validatePassword(this.passwordInput.value);
-            this.updateFieldStatus(this.passwordInput, this.passwordError, result);
-            
-            // Também validar a confirmação da senha quando a senha mudar
-            if (this.confirmPasswordInput.value) {
-                const confirmResult = this.validateConfirmPassword(
-                    this.passwordInput.value, 
-                    this.confirmPasswordInput.value
-                );
-                this.updateFieldStatus(this.confirmPasswordInput, this.confirmPasswordError, confirmResult);
+            // Validação em tempo real para o sobrenome
+            if (this.lastnameInput) {
+                this.lastnameInput.addEventListener('input', () => {
+                    const result = this.validateName(this.lastnameInput.value, 'sobrenome');
+                    this.updateFieldStatus(this.lastnameInput, this.lastnameError, result);
+                    this.updateSubmitButtonState();
+                });
+            } else {
+                console.warn('Elemento lastnameInput não encontrado');
             }
-            
-            this.updateSubmitButtonState();
-        });
 
-        // Validação em tempo real para a confirmação de senha
-        this.confirmPasswordInput.addEventListener('input', () => {
-            const result = this.validateConfirmPassword(
-                this.passwordInput.value, 
-                this.confirmPasswordInput.value
-            );
-            this.updateFieldStatus(this.confirmPasswordInput, this.confirmPasswordError, result);
-            this.updateSubmitButtonState();
-        });
+            // Validação em tempo real para o e-mail
+            if (this.emailInput) {
+                this.emailInput.addEventListener('input', () => {
+                    this.validateEmailAsync(this.emailInput.value).then(result => {
+                        this.updateFieldStatus(this.emailInput, this.emailError, result);
+                        this.updateSubmitButtonState();
+                    });
+                });
+            } else {
+                console.warn('Elemento emailInput não encontrado');
+            }
+
+            // Validação em tempo real para o nome de usuário
+            if (this.usernameInput) {
+                this.usernameInput.addEventListener('input', () => {
+                    this.validateUsernameAsync(this.usernameInput.value).then(result => {
+                        this.updateFieldStatus(this.usernameInput, this.usernameError, result);
+                        this.updateSubmitButtonState();
+                    });
+                });
+            } else {
+                console.warn('Elemento usernameInput não encontrado');
+            }
+
+            // Validação em tempo real para o telefone
+            if (this.phoneInput) {
+                this.phoneInput.addEventListener('input', () => {
+                    // Formatar o telefone enquanto digita
+                    this.phoneInput.value = this.formatPhone(this.phoneInput.value);
+                    const result = this.validatePhone(this.phoneInput.value);
+                    this.updateFieldStatus(this.phoneInput, this.phoneError, result);
+                    this.updateSubmitButtonState();
+                });
+            } else {
+                console.warn('Elemento phoneInput não encontrado');
+            }
+
+            // Validação e formatação do CEP
+            if (this.cepInput) {
+                this.cepInput.addEventListener('input', () => {
+                    // Formatar o CEP enquanto digita
+                    this.cepInput.value = this.formatCEP(this.cepInput.value);
+                    const result = this.validateCEP(this.cepInput.value);
+                    this.updateFieldStatus(this.cepInput, this.cepError, result);
+                    this.updateSubmitButtonState();
+                });
+            } else {
+                console.warn('Elemento cepInput não encontrado');
+            }
+
+            // Botão de busca de CEP
+            if (this.searchCepBtn) {
+                this.searchCepBtn.addEventListener('click', () => {
+                    if (this.cepInput) {
+                        const cep = this.cepInput.value.replace(/\D/g, '');
+                        if (cep.length === 8) {
+                            this.searchAddressByCEP(cep);
+                        } else {
+                            this.updateFieldStatus(this.cepInput, this.cepError, {
+                                isValid: false,
+                                message: 'CEP inválido. Digite um CEP válido com 8 dígitos.'
+                            });
+                        }
+                    }
+                });
+            } else {
+                console.warn('Elemento searchCepBtn não encontrado');
+            }
+
+            // Validação para o campo de rua
+            if (this.streetInput) {
+                this.streetInput.addEventListener('input', () => {
+                    const result = this.validateRequired(this.streetInput.value, 'rua');
+                    this.updateFieldStatus(this.streetInput, this.streetError, result);
+                    this.updateSubmitButtonState();
+                });
+            } else {
+                console.warn('Elemento streetInput não encontrado');
+            }
+
+            // Validação para o campo de número
+            if (this.numberInput) {
+                this.numberInput.addEventListener('input', () => {
+                    const result = this.validateRequired(this.numberInput.value, 'número');
+                    this.updateFieldStatus(this.numberInput, this.numberError, result);
+                    this.updateSubmitButtonState();
+                });
+            } else {
+                console.warn('Elemento numberInput não encontrado');
+            }
+
+            // Validação para o campo de bairro
+            if (this.neighborhoodInput) {
+                this.neighborhoodInput.addEventListener('input', () => {
+                    const result = this.validateRequired(this.neighborhoodInput.value, 'bairro');
+                    this.updateFieldStatus(this.neighborhoodInput, this.neighborhoodError, result);
+                    this.updateSubmitButtonState();
+                });
+            } else {
+                console.warn('Elemento neighborhoodInput não encontrado');
+            }
+
+            // Validação para o campo de cargo
+            if (this.roleSelect) {
+                this.roleSelect.addEventListener('change', () => {
+                    const result = this.validateRole(this.roleSelect.value);
+                    this.updateFieldStatus(this.roleSelect, this.roleError, result);
+                    this.updateSubmitButtonState();
+                });
+            } else {
+                console.warn('Elemento roleSelect não encontrado');
+            }
+
+            // Validação em tempo real para a senha
+            if (this.passwordInput) {
+                this.passwordInput.addEventListener('input', () => {
+                    const result = this.validatePassword(this.passwordInput.value);
+                    this.updateFieldStatus(this.passwordInput, this.passwordError, result);
+                    
+                    // Também validar a confirmação da senha quando a senha mudar
+                    if (this.confirmPasswordInput && this.confirmPasswordInput.value) {
+                        const confirmResult = this.validateConfirmPassword(
+                            this.passwordInput.value, 
+                            this.confirmPasswordInput.value
+                        );
+                        this.updateFieldStatus(this.confirmPasswordInput, this.confirmPasswordError, confirmResult);
+                    }
+                    
+                    this.updateSubmitButtonState();
+                });
+            } else {
+                console.warn('Elemento passwordInput não encontrado');
+            }
+
+            // Validação em tempo real para a confirmação de senha
+            if (this.confirmPasswordInput) {
+                this.confirmPasswordInput.addEventListener('input', () => {
+                    if (this.passwordInput) {
+                        const result = this.validateConfirmPassword(
+                            this.passwordInput.value, 
+                            this.confirmPasswordInput.value
+                        );
+                        this.updateFieldStatus(this.confirmPasswordInput, this.confirmPasswordError, result);
+                        this.updateSubmitButtonState();
+                    }
+                });
+            } else {
+                console.warn('Elemento confirmPasswordInput não encontrado');
+            }
+        } catch (error) {
+            console.error('Erro ao inicializar eventos do formulário:', error);
+        }
 
         // Manipulador de envio do formulário
         this.form.addEventListener('submit', async (e) => {
@@ -442,18 +504,42 @@ class SignupForm {
             } else {
                 console.log('Dados do CEP:', data);
                 
-                // Preencher os campos com os dados retornados
-                this.streetInput.value = data.logradouro || '';
-                this.neighborhoodInput.value = data.bairro || '';
-                this.cityInput.value = data.localidade || '';
-                this.stateInput.value = data.uf || '';
+                // Preencher os campos com os dados retornados - com verificações de nulidade
+                if (this.streetInput) {
+                    this.streetInput.value = data.logradouro || '';
+                    // Validar os campos preenchidos
+                    if (data.logradouro && this.streetError) {
+                        this.updateFieldStatus(this.streetInput, this.streetError, {
+                            isValid: true,
+                            message: ''
+                        });
+                    }
+                } else {
+                    console.warn('Elemento streetInput não encontrado');
+                }
                 
-                // Validar os campos preenchidos
-                if (data.logradouro) {
-                    this.updateFieldStatus(this.streetInput, this.streetError, {
-                        isValid: true,
-                        message: ''
-                    });
+                if (this.neighborhoodInput) {
+                    this.neighborhoodInput.value = data.bairro || '';
+                    if (data.bairro && this.neighborhoodError) {
+                        this.updateFieldStatus(this.neighborhoodInput, this.neighborhoodError, {
+                            isValid: true,
+                            message: ''
+                        });
+                    }
+                } else {
+                    console.warn('Elemento neighborhoodInput não encontrado');
+                }
+                
+                if (this.cityInput) {
+                    this.cityInput.value = data.localidade || '';
+                } else {
+                    console.warn('Elemento cityInput não encontrado');
+                }
+                
+                if (this.stateInput) {
+                    this.stateInput.value = data.uf || '';
+                } else {
+                    console.warn('Elemento stateInput não encontrado');
                 }
                 
                 if (data.bairro) {
@@ -526,21 +612,44 @@ class SignupForm {
 
     // Atualizar o status visual do campo
     updateFieldStatus(input, errorElement, result) {
-        if (result.isValid) {
-            input.classList.remove('error');
-            errorElement.textContent = '';
-        } else {
-            input.classList.add('error');
-            errorElement.textContent = result.message;
+        try {
+            // Verificar se input e errorElement existem antes de tentar acessá-los
+            if (!input || !errorElement) {
+                console.warn('updateFieldStatus: input ou errorElement é nulo', { 
+                    inputExists: !!input, 
+                    errorElementExists: !!errorElement 
+                });
+                return;
+            }
+            
+            if (result.isValid) {
+                input.classList.remove('error');
+                errorElement.textContent = '';
+            } else {
+                input.classList.add('error');
+                errorElement.textContent = result.message;
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar status do campo:', error);
         }
     }
 
+    // Validar campo obrigatório genérico
+    validateRequired(value, fieldName) {
+        if (!value || !value.trim()) {
+            return { 
+                isValid: false, 
+                message: `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} é obrigatório` 
+            };
+        }
+        return { isValid: true, message: '' };
+    }
+    
     // Validar cargo
     validateRole(role) {
-        if (!role) {
+        if (!role || role === 'selecione') {
             return { isValid: false, message: 'Selecione um cargo' };
         }
-        
         return { isValid: true, message: '' };
     }
     

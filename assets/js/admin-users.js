@@ -126,11 +126,24 @@ document.addEventListener('DOMContentLoaded', function() {
      * Abre o modal de gerenciamento de usuários e carrega a lista
      */
     function openAdminUsersModal() {
-        // Mostrar modal
-        adminUsersModal.style.display = 'block';
-        
-        // Carregar lista de usuários
-        loadAllUsers();
+        try {
+            console.log('Abrindo modal de gerenciamento de usuários');
+            
+            // Verificar se o modal existe
+            const modal = document.getElementById('admin-users-modal');
+            if (!modal) {
+                console.error('Modal de gerenciamento de usuários não encontrado');
+                return;
+            }
+            
+            // Mostrar modal
+            modal.style.display = 'block';
+            
+            // Carregar lista de usuários
+            loadAllUsers();
+        } catch (error) {
+            console.error('Erro ao abrir modal de gerenciamento de usuários:', error);
+        }
     }
     
     /**
@@ -148,9 +161,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Carregar usuários do Firebase
         window.firebaseDB.getAllUsers()
-            .then(users => {
-                allUsers = users;
-                renderUsersList(users);
+            .then(result => {
+                console.log('Resultado de getAllUsers:', result);
+                if (result.success && Array.isArray(result.users)) {
+                    allUsers = result.users;
+                    renderUsersList(result.users);
+                } else {
+                    console.error('Formato de resposta inválido:', result);
+                    usersList.innerHTML = '<tr><td colspan="4" class="error-message">Formato de dados inválido. Contate o administrador.</td></tr>';
+                }
             })
             .catch(error => {
                 console.error('Erro ao carregar usuários:', error);
@@ -176,12 +195,16 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Nome completo
             const nameCell = document.createElement('td');
-            nameCell.textContent = `${user.personalInfo?.firstName || ''} ${user.personalInfo?.lastName || ''}`;
+            // Verificar diferentes estruturas possíveis para o nome
+            const firstName = user.personalInfo?.firstName || user.personalInfo?.firstname || '';
+            const lastName = user.personalInfo?.lastName || user.personalInfo?.lastname || '';
+            nameCell.textContent = `${firstName} ${lastName}`;
             row.appendChild(nameCell);
             
             // Email
             const emailCell = document.createElement('td');
-            emailCell.textContent = user.email || '';
+            // Verificar diferentes estruturas possíveis para o email
+            emailCell.textContent = user.email || user.personalInfo?.email || '';
             row.appendChild(emailCell);
             
             // Cargo
@@ -242,20 +265,43 @@ document.addEventListener('DOMContentLoaded', function() {
      * Abre o modal de edição de usuário
      */
     function openEditUserModal(user) {
-        // Guardar referência ao usuário atual
-        currentUser = user;
-        
-        // Preencher formulário com dados do usuário
-        document.getElementById('edit-user-id').value = user.uid || '';
-        document.getElementById('edit-user-name').value = user.personalInfo?.firstName || '';
-        document.getElementById('edit-user-lastname').value = user.personalInfo?.lastName || '';
-        document.getElementById('edit-user-email').value = user.email || '';
-        document.getElementById('edit-user-username').value = user.username || '';
-        document.getElementById('edit-user-role').value = user.professionalInfo?.role || 'funcionario';
-        document.getElementById('edit-user-phone').value = user.contactInfo?.phone || '';
-        
-        // Mostrar modal de edição
-        editUserModal.style.display = 'block';
+        try {
+            console.log('Abrindo modal de edição para usuário:', user);
+            
+            // Guardar referência ao usuário atual
+            currentUser = user;
+            
+            // Verificar se os elementos existem antes de definir seus valores
+            const idField = document.getElementById('edit-user-id');
+            const nameField = document.getElementById('edit-user-name');
+            const lastnameField = document.getElementById('edit-user-lastname');
+            const emailField = document.getElementById('edit-user-email');
+            const usernameField = document.getElementById('edit-user-username');
+            const roleField = document.getElementById('edit-user-role');
+            
+            // Preencher formulário com dados do usuário (com verificações de nulidade)
+            if (idField) idField.value = user.uid || '';
+            if (nameField) nameField.value = user.personalInfo?.firstName || '';
+            if (lastnameField) lastnameField.value = user.personalInfo?.lastName || '';
+            if (emailField) emailField.value = user.email || '';
+            if (usernameField) usernameField.value = user.username || '';
+            if (roleField) roleField.value = user.professionalInfo?.role || 'funcionario';
+            
+            // Exibir o modal de edição
+            const editModal = document.getElementById('edit-user-modal');
+            if (editModal) {
+                editModal.style.display = 'block';
+            } else {
+                console.error('Modal de edição não encontrado');
+            }
+            // Adicionar outros campos do formulário com verificações de nulidade
+            const phoneField = document.getElementById('edit-user-phone');
+            if (phoneField) phoneField.value = user.contactInfo?.phone || '';
+            
+            // Nota: O modal já está sendo exibido acima, não precisamos fazer isso novamente
+        } catch (error) {
+            console.error('Erro ao abrir modal de edição:', error);
+        }
     }
     
     /**

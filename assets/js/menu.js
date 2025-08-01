@@ -496,20 +496,26 @@ async function loadUsersList() {
     try {
         // Verificar se o Firebase está disponível
         if (!window.firebaseDB) {
+            console.error('Firebase não está disponível - window.firebaseDB é undefined');
             throw new Error('Firebase não está disponível');
         }
+        
+        console.log('Firebase disponível, verificando método getAllUsers:', typeof window.firebaseDB.getAllUsers);
 
         // Buscar todos os usuários do Firebase
+        console.log('Chamando firebaseDB.getAllUsers()...');
         const result = await window.firebaseDB.getAllUsers();
+        console.log('Resultado de getAllUsers:', result);
 
         if (result.success && result.users && result.users.length > 0) {
-            console.log(`${result.users.length} usuários encontrados`);
+            console.log(`${result.users.length} usuários encontrados:`, result.users);
 
             // Ocultar mensagem de carregamento
             if (loadingMessage) loadingMessage.style.display = 'none';
 
             // Preencher a tabela com os dados dos usuários
             result.users.forEach(user => {
+                console.log('Processando usuário:', user);
                 const row = document.createElement('tr');
 
                 // Obter informações do usuário de forma segura
@@ -518,6 +524,8 @@ async function loadUsersList() {
                 const fullName = firstName && lastName ? `${firstName} ${lastName}` : (user.personalInfo?.username || 'Nome indisponível');
                 const email = user.personalInfo?.email || user.email || 'Email indisponível';
                 const role = user.professionalInfo?.role ? getRoleName(user.professionalInfo.role) : 'Usuário';
+                
+                console.log(`Usuário ${user.uid}: Nome=${fullName}, Email=${email}, Cargo=${role}`);
 
                 // Criar células da tabela
                 row.innerHTML = `
@@ -541,7 +549,7 @@ async function loadUsersList() {
             setupUserActionButtons();
 
         } else {
-            console.log('Nenhum usuário encontrado ou erro ao buscar usuários');
+            console.log('Nenhum usuário encontrado ou erro ao buscar usuários. Resultado:', result);
             usersTableBody.innerHTML = `<tr><td colspan="4" class="empty-message">Nenhum usuário encontrado</td></tr>`;
             if (loadingMessage) loadingMessage.style.display = 'none';
         }
